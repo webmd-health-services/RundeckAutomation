@@ -1,0 +1,8 @@
+TOPIC
+    about_RundeckAutomation
+
+SHORT DESCRIPTION
+    RundeckAutomation is a PowerShell module for...
+
+LONG DESCRIPTION
+    The RundeckAutomation PowerShell module...
