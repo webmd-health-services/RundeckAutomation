@@ -18,7 +18,7 @@
     RootModule = 'RundeckAutomation.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.0.0'
+    ModuleVersion = '0.1.0'
 
     # ID used to uniquely identify this module
     GUID = ''
@@ -36,7 +36,7 @@
     Copyright = '(c) WebMD Health Services.'
 
     # Description of the functionality provided by this module
-    Description = ''
+    Description = 'Functions to assist with managing a Rundeck server.'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '5.1'
@@ -76,6 +76,18 @@
 
     # Functions to export from this module. Only list public function here.
     FunctionsToExport = @(
+        'Disable-RundeckJobSchedule',
+        'Enable-RundeckJobSchedule',
+        'Export-RundeckJob',
+        'Get-RundeckJob',
+        'Get-RundeckJobExecution',
+        'Get-RundeckProject',
+        'Get-RundeckSystemInfo',
+        'Import-RundeckJob',
+        'Invoke-RundeckRestMethod',
+        'New-RundeckProject',
+        'New-RundeckSession',
+        'Start-RundeckJob'
     )
 
     # Cmdlets to export from this module. By default, you get a script module, so there are no cmdlets.
@@ -116,8 +128,7 @@
             Prerelease = ''
 
             # ReleaseNotes of this module
-            ReleaseNotes = @'
-'@
+            ReleaseNotes = 'https://github.com/webmd-health-services/RundeckAutomation/CHANGELOG.md'
         } # End of PSData hashtable
 
     } # End of PrivateData hashtable
