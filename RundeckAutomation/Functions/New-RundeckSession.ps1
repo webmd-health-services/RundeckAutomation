@@ -21,10 +21,15 @@ function New-RundeckSession
         # The URI to the Rundeck instance to connect to.
         $Uri,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, ParameterSetName = 'username')]
         [pscredential]
         # The credentials to use.
         $Credential,
+
+        [Parameter(Mandatory, ParameterSetName = 'apitoken')]
+        [string]
+        # The credentials to use.
+        $ApiToken,
 
         [string]
         # Optional specify API version.  Defaults to 41.
@@ -35,14 +40,24 @@ function New-RundeckSession
 
     $apiUri = New-Object -TypeName 'Uri' -ArgumentList @($Uri,"/api/$($ApiVersion)/")
 
-    $tokenUri = New-Object -TypeName 'Uri' -ArgumentList @($Uri,'j_security_check')
-    $body = "j_username=$($Credential.UserName)&j_password=$($Credential.GetNetworkCredential().Password)"
+    if ($Credential)
+    {
+        $tokenUri = New-Object -TypeName 'Uri' -ArgumentList @($Uri,'j_security_check')
+        $body = "j_username=$($Credential.UserName)&j_password=$($Credential.GetNetworkCredential().Password)"
 
-    Write-Debug  $body
+        Write-Debug  $body
 
-    Invoke-WebRequest -SessionVariable restSession -Method Post -Uri $tokenUri -UseBasicParsing -Body $body
-    $rundeckCookies = $restSession.Cookies.GetCookies($Uri)
-    Write-Debug ( $rundeckCookies | Where-Object { $_.Name -eq 'JSESSIONID' } | Format-List * | Out-String )
+        Invoke-WebRequest -SessionVariable restSession -Method Post -Uri $tokenUri -UseBasicParsing -Body $body
+        $rundeckCookies = $restSession.Cookies.GetCookies($Uri)
+        Write-Debug ( $rundeckCookies | Where-Object { $_.Name -eq 'JSESSIONID' } | Format-List * | Out-String )
+    }
+    else
+    {
+        $restSession = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
+        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+        $headers.Add('X-Rundeck-Auth-Token', $ApiToken)
+        $restSession.Headers= $headers
+    }
     
     New-Variable -Force -Name '_RundeckSession' -Scope Script -Value ([pscustomobject]@{ WebSession = $restSession; Uri = $apiUri })
 

@@ -75,13 +75,12 @@ function Invoke-RundeckRestMethod
     Write-Debug ($endpointUri | Format-List | Out-String)
     Write-Debug ($_RundeckSession.WebSession | Format-List * | Out-String)
 
+    $sessionHeaders = @{
+        'Accept' = $contentAccept;
+    }
+
     try
     {
-
-        if( $Body )
-        {
-            $Body | Write-Debug
-        }
 
         if( $Method -eq [Microsoft.PowerShell.Commands.WebRequestMethod]::Get -or $PSCmdlet.ShouldProcess($endpointUri,$Method) )
         {
@@ -91,7 +90,10 @@ function Invoke-RundeckRestMethod
                 $bodyParam['Body'] = $Body
             }
 
-            Invoke-RestMethod -WebSession $_RundeckSession.WebSession -Method $Method -Uri $endpointUri -Headers @{'Accept'=$contentAccept} -ContentType $contentType @bodyParam |
+            Write-Debug ($sessionHeaders | Out-String)
+            Write-Debug ($bodyParam | Out-String)
+
+            Invoke-RestMethod -WebSession $_RundeckSession.WebSession -Method $Method -Uri $endpointUri -Headers $sessionHeaders -ContentType $contentType @bodyParam |
                 Where-Object { $_ }
         }
     }
