@@ -1,5 +1,14 @@
 
 Build:
+- PowerShell:
+    ExceptDuring: Clean
+    ScriptBlock: |
+        if( -not (Get-Module -Name 'Prism' -ListAvailable) )
+        {
+            Find-Module -Name 'Prism' | Select-Object -First 1 | Install-Module -Force
+        }
+        prism install | Format-Table -Auto
+
 - Version:
     Path: RundeckAutomation\RundeckAutomation.psd1
     Prerelease:
