@@ -128,7 +128,7 @@
             Prerelease = ''
 
             # ReleaseNotes of this module
-            ReleaseNotes = 'https://github.com/webmd-health-services/RundeckAutomation/CHANGELOG.md'
+            ReleaseNotes = 'https://github.com/webmd-health-services/RundeckAutomation/blob/main/CHANGELOG.md'
         } # End of PSData hashtable
 
     } # End of PrivateData hashtable

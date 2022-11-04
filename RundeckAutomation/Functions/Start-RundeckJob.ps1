@@ -20,7 +20,11 @@ function Start-RundeckJob
 
         # Wait for job to complete or fail.
         [switch]
-        $Wait
+        $Wait,
+
+        # Seconds to wait for a job to start before polling whether job status is "running".
+        [int]
+        $WaitInterval = 10
     )
 
     process
@@ -32,7 +36,7 @@ function Start-RundeckJob
         {
             while ($jobRun.status -eq 'running')
             {
-                Start-Sleep -Seconds 10
+                Start-Sleep -Seconds $WaitInterval
                 $jobRun = Get-RundeckJobExecution -Uri $jobRun.permalink
             }
         }

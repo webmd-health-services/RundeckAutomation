@@ -8,9 +8,9 @@ function Get-RundeckJobExecution
     The `Get-RundeckJobExecution` function gets a job execution status from Rundeck.
 
     .EXAMPLE
-    Get-RundeckJobExecution -ProjectName $refProject.Name -ID 'b090d4c8-585c-4330-8bc6-ad4783089dfd'
+    Get-RundeckJobExecution -Uri 'https://rundeck.test.webmdhealth.com/api/41/execution/406'
 
-    Demonstrates how to get a specific job usng its ID.
+    Demonstrates how to get a specific job execution for job "41" usng its URI.
     #>
     param(
         # The job's name.
