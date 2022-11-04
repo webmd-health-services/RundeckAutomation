@@ -13,13 +13,13 @@ function Start-RundeckJob
     Demonstrates how to start a specific job usng its ID.
     #>
     param(
+        # The job's ID.
         [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByID')]
         [guid]
-        # The job's ID.
         $ID,
 
-        [switch]
         # Wait for job to complete or fail.
+        [switch]
         $Wait
     )
 

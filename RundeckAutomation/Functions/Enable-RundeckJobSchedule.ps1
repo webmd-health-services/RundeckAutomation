@@ -13,9 +13,9 @@ function Enable-RundeckJobSchedule
     Demonstrates how to enable a job.
     #>
     param(
+        # The job ID.
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
         [GUID]
-        # The job ID.
         $ID
     )
 

@@ -13,19 +13,19 @@ function Export-RundeckJob
     Demonstrates how to export a job defined in the demo project to an XML file called test.xml.
     #>
     param(
+        # The path to an XML job definition file.
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
         [string]
-        # The path to an XML job definition file.
         $Path,
 
+        # The project name.
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
         [string]
-        # The project name.
         $ProjectName,
 
+        # The job ID.
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
         [GUID]
-        # The job ID.
         $ID
     )
 

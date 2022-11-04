@@ -13,9 +13,9 @@ function Get-RundeckJobExecution
     Demonstrates how to get a specific job usng its ID.
     #>
     param(
+        # The job's name.
         [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByUri')]
         [string]
-        # The job's name.
         $Uri
     )
 

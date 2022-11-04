@@ -16,23 +16,23 @@ function New-RundeckSession
     #>
     [CmdletBinding()]
     param(
+        # The URI to the Rundeck instance to connect to.
         [Parameter(Mandatory)]
         [uri]
-        # The URI to the Rundeck instance to connect to.
         $Uri,
 
+        # The credentials to use.
         [Parameter(Mandatory, ParameterSetName = 'username')]
         [pscredential]
-        # The credentials to use.
         $Credential,
 
+        # The credentials to use.
         [Parameter(Mandatory, ParameterSetName = 'apitoken')]
         [string]
-        # The credentials to use.
         $ApiToken,
 
-        [string]
         # Optional specify API version.  Defaults to 41.
+        [string]
         $ApiVersion = 41
     )
 

@@ -13,24 +13,24 @@ function Get-RundeckJob
     Demonstrates how to get a specific job usng its ID.
     #>
     param(
+        # The job's name.
         [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByName')]
         [string]
-        # The job's name.
         $Name,
 
+        # The job name filter.
         [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByFilter')]
         [string]
-        # The job name filter.
         $Filter,
 
+        # The job's ID.
         [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByID')]
         [guid]
-        # The job's ID.
         $ID,
 
+        # The project name.
         [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [string]
-        # The project name.
         $ProjectName    
     )
 

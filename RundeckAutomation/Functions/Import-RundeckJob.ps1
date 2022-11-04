@@ -13,18 +13,18 @@ function Import-RundeckJob
     Demonstrates how to import a job defined in test.xml into the demo project.
     #>
     param(
+        # The path to an XML job definition file.
         [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [string]
-        # The path to an XML job definition file.
         $Path,
 
+        # The project name.
         [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
         [string]
-        # The project name.
         $ProjectName,
 
-        [switch]
         # Do not preserve the UUID for the job when importing.
+        [switch]
         $RemoveUuid
     )
 

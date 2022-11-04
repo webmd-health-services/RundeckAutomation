@@ -20,26 +20,26 @@ function Invoke-RundeckRestMethod
     #>
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
+        # The HTTP method to use for the request.
         [Parameter(Mandatory)]
         [Microsoft.PowerShell.Commands.WebRequestMethod]
-        # The HTTP method to use for the request.
         $Method,
 
+        # The relative path to the endpoint to request. This is the part of the URI after `api/dd/`.
         [Parameter(Mandatory)]
         [string]
-        # The relative path to the endpoint to request. This is the part of the URI after `api/dd/`.
         $ResourcePath,
 
-        [string]
         # The body of the request.
+        [string]
         $Body,
 
-        [string]
         # URI Parameters to pass.
+        [string]
         $QueryString,
 
-        [switch]
         # Content is XML format rather than JSON.
+        [switch]
         $ContentIsXML
     )
 
