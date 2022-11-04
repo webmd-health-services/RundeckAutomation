@@ -25,12 +25,12 @@ function Get-RundeckProject
     [CmdletBinding()]
     param(
         # The project's name.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByName')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByName')]
         [string]
         $Name,
 
         # The project name filter.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByFilter')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByFilter')]
         [string]
         $Filter
     )

@@ -14,7 +14,7 @@ function Start-RundeckJob
     #>
     param(
         # The job's ID.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByID')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByID')]
         [guid]
         $ID,
 

@@ -14,22 +14,22 @@ function Get-RundeckJob
     #>
     param(
         # The job's name.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByName')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByName')]
         [string]
         $Name,
 
         # The job name filter.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByFilter')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByFilter')]
         [string]
         $Filter,
 
         # The job's ID.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByID')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByID')]
         [guid]
         $ID,
 
         # The project name.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]
         $ProjectName    
     )

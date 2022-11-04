@@ -21,12 +21,12 @@ function New-RundeckProject
     [CmdletBinding()]
     param(
         # The project's configuration in JSON format.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByJson')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByJson')]
         [string]
         $Config,
 
         # The project's configuration as a XML Document.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByFile')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByFile')]
         [string]
         $File
     )

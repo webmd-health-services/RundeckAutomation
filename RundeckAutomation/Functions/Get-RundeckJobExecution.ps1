@@ -14,7 +14,7 @@ function Get-RundeckJobExecution
     #>
     param(
         # The job's name.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName,ParameterSetName='ByUri')]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByUri')]
         [string]
         $Uri
     )

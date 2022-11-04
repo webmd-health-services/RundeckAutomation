@@ -14,12 +14,12 @@ function Import-RundeckJob
     #>
     param(
         # The path to an XML job definition file.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]
         $Path,
 
         # The project name.
-        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]
         $ProjectName,
 
