@@ -18,6 +18,10 @@ function Start-RundeckJob
         [guid]
         $ID,
 
+        # The optional time to start the job.
+        [datetime]
+        $RunAtTime,
+
         # Wait for job to complete or fail.
         [switch]
         $Wait,
@@ -29,7 +33,20 @@ function Start-RundeckJob
 
     process
     {
-        $jobRun = Invoke-RundeckRestMethod -Method 'POST' -ResourcePath "job/$($ID)/executions"
+
+        if ($RunAtTime)
+        {
+            $dateCodeISO8601 = Get-Date -Date $RunAtTime.ToUniversalTime() -UFormat '%Y-%m-%dT%H:%M:%S-0000'
+
+            $body = @{ 'runAtTime' = $dateCodeISO8601 } | ConvertTo-Json
+            $jobRun = Invoke-RundeckRestMethod -Method 'POST' -ResourcePath "job/$($ID)/executions" -Body $body
+        }
+        else
+        {
+            $jobRun = Invoke-RundeckRestMethod -Method 'POST' -ResourcePath "job/$($ID)/executions"
+        }
+
+        
         Start-Sleep -Seconds 1
 
         if ($Wait)

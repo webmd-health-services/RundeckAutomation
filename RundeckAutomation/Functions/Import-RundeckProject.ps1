@@ -1,20 +1,20 @@
-function New-RundeckProject
+function Import-RundeckProject
 {
     <#
     .SYNOPSIS
     Creates a Rundeck project from JSON string or XML document file.
 
     .DESCRIPTION
-    The `New-RundeckProject` function creates a Rundeck project from JSON string or XML document file.  See https://docs.rundeck.com/docs/api/rundeck-api.html#getting-project-info for content definition.
+    The `Import-RundeckProject` function creates a Rundeck project from JSON string or XML document file.  See https://docs.rundeck.com/docs/api/rundeck-api.html#getting-project-info for content definition.
 
     .EXAMPLE
     $jsonProjectDefinition = '{ "name": "myproject", "config": { "propname":"propvalue" } }'
-    New-RundeckProject -Config $jsonProjectDefinition
+    Import-RundeckProject -Config $jsonProjectDefinition
 
     Demonstrates how to create a project using a JSON string.
 
     .EXAMPLE
-    New-RundeckProject -File '~/xmlProjectDefinition.xml'
+    Import-RundeckProject -File '~/xmlProjectDefinition.xml'
 
     Demonstrates how to create a project using a XML document file.
     #>
@@ -38,7 +38,7 @@ function New-RundeckProject
         $method = 'POST'
         if ($File)
         {
-            Invoke-RundeckRestMethod -Method $method -ResourcePath $resourcePath -Body (Get-Content -Raw -File $File) -ContentIsXML
+            Invoke-RundeckRestMethod -Method $method -ResourcePath $resourcePath -Body (Get-Content -Raw -Path $File) -ContentIsXML
         }
         else
         {

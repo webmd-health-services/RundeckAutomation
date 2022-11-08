@@ -5,7 +5,7 @@ function Export-RundeckJob
     Exports a job from Rundeck to an XML file.
 
     .DESCRIPTION
-    The `Export-RundeckJob` function exports a job from Rundeck to an XML file.  WARNING: Only works with the API Token and not username and password.
+    The `Export-RundeckJob` function exports a job from Rundeck to an XML file.
 
     .EXAMPLE
     Export-RundeckJob -Path '.\test.xml' -ProjectName 'demo' -ID 'b090d4c8-585c-4330-8bc6-ad4783089dfd'

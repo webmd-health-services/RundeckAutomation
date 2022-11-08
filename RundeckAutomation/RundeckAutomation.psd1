@@ -79,14 +79,17 @@
         'Disable-RundeckJobSchedule',
         'Enable-RundeckJobSchedule',
         'Export-RundeckJob',
+        'Export-RundeckProject',
         'Get-RundeckJob',
         'Get-RundeckJobExecution',
         'Get-RundeckProject',
         'Get-RundeckSystemInfo',
         'Import-RundeckJob',
+        'Import-RundeckProject',
         'Invoke-RundeckRestMethod',
-        'New-RundeckProject',
         'New-RundeckSession',
+        'Remove-RundeckJob',
+        'Remove-RundeckProject',
         'Start-RundeckJob'
     )
 
