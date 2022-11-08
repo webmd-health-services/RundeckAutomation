@@ -6,7 +6,6 @@ Gets your computer ready to develop the RundeckAutomation module.
 The init.ps1 script makes the configuraion changes necessary to get your computer ready to develop for the
 RundeckAutomation module. It:
 
-
 .EXAMPLE
 .\init.ps1
 
@@ -55,12 +54,7 @@ $msiPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.msi'
 $msiLogPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.log'
 $zipPath = Join-Path -Path $rundeckPath -ChildPath 'nssm.zip'
 $nssmPath = Join-Path -Path $rundeckPath -ChildPath 'nssm.exe'
-
-Write-Verbose (Get-Variable | Format-Table | Out-String)
-Write-Verbose ''
-Write-Verbose (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
-Write-Verbose ''
-
+$rundeckConfigPath = Join-Path -Path $rundeckPath -ChildPath 'server\config\rundeck-config.properties'
 New-Item -ItemType Directory -Path $rundeckPath
 
 Write-Host 'Install OpenJDK'
@@ -107,6 +101,9 @@ if ($rundeckInstall.stderr)
 }
 Copy-Item -Path (Join-Path -Path $($PSScriptRoot) -ChildPath 'vagrant\start_rundeck.bat') -Destination 'C:\rundeck\start_rundeck.bat'
 New-Item -ItemType Directory -Path (Join-Path -Path $rundeckPath -ChildPath '\var\log')
+Copy-Item -Path $rundeckConfigPath -Destination "$($rundeckConfigPath).orig"
+(Get-Content -Path $rundeckConfigPath) -replace 'server\.address=localhost', 'server.address=0.0.0.0' | Set-Content -Path $rundeckConfigPath -Encoding UTF8
+New-NetFirewallRule -Name 'Allow Rundeck' -DisplayName 'Allow Rundeck' -Enabled True -Profile Any -Direction Inbound -Action Allow -LocalPort 4440 -Protocol 'TCP'
 
 Write-Host 'Install Rundeck NSSM Windows service'
 Invoke-WebRequest -UseBasicParsing -Uri "http://nssm.cc/release/nssm-$($nssmVersion).zip" -OutFile $zipPath
@@ -142,9 +139,9 @@ $rundeckAccessList | Set-Acl -Path $rundeckPath
 Write-Host 'Install done.  Starting Service.'
 Start-Service -Name 'RUNDECK'
 Start-Sleep -Seconds 5
-$maxTries = 20
+$maxTries = 10
 $i = 0
-while (((Get-Content -Path 'C:\rundeck\var\log\service.log' -ErrorAction SilentlyContinue) -notcontains 'Grails application running at http://localhost:4440 in environment: production') -and ($i -lt $maxTries))
+while ((-not (Test-NetConnection -ComputerName localhost -Port 4440).TcpTestSucceeded) -and ($i -lt $maxTries))
 {
     Write-Host 'Waiting 30 seconds for site to start...'
     Start-Sleep -Seconds 30
@@ -153,7 +150,7 @@ while (((Get-Content -Path 'C:\rundeck\var\log\service.log' -ErrorAction Silentl
 
 while (((Invoke-WebRequest -ErrorAction SilentlyContinue -UseBasicParsing -Uri 'http://localhost:4440').Content -notmatch 'Rundeck - Login' ) -and ($i -lt $maxTries))
 {
-    Write-Host 'Waiting 30 seconds for site to initialize...'
+    Write-Host 'Waiting 30 seconds for site to fully initialize...'
     Start-Sleep -Seconds 30
     ++$i
 }
