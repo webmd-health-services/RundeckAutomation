@@ -54,7 +54,7 @@ function Start-RundeckJob
             while ($jobRun.status -eq 'running')
             {
                 Start-Sleep -Seconds $WaitInterval
-                $jobRun = Get-RundeckJobExecution -Uri $jobRun.permalink
+                $jobRun = Get-RundeckJobExecution -ID $jobRun.id
             }
         }
         return $jobRun

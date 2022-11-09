@@ -10,18 +10,18 @@ function Get-RundeckJobExecution
     .EXAMPLE
     Get-RundeckJobExecution -Uri 'https://rundeck.test.webmdhealth.com/api/41/execution/406'
 
-    Demonstrates how to get a specific job execution for job "41" usng its URI.
+    Demonstrates how to get a specific job execution using its URI.
     #>
     param(
         # The job's name.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByUri')]
         [string]
-        $Uri
+        $ID
     )
 
     process
     {
-        $status = Invoke-RundeckRestMethod -Method 'GET' -ResourcePath $Uri
+        $status = Invoke-RundeckRestMethod -Method 'GET' -ResourcePath "execution/$($Id)"
         return $status
     }
 }

@@ -18,7 +18,7 @@ function Remove-RundeckJob
         # The job's ID.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [guid]
-        $Id
+        $ID
     )
 
     process
