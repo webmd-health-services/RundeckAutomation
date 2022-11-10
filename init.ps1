@@ -45,15 +45,15 @@ $VerbosePreference = 'Continue'
 
 Write-Host 'Starting init.ps1 script'
 
-Write-Host ''
-Write-Host ($PSVersionTable | Format-Table -Wrap | Out-String)
-Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
-Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
-Write-Host ''
+# Write-Host ''
+# Write-Host ($PSVersionTable | Format-Table -Wrap | Out-String)
+# Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
+# Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
+# Write-Host ''
 
 $rundeckVersion = '4.6.1-20220914'
 
-if ($PSVersionTable.PSEdition -eq 'Desktop')
+if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 'Win32NT'))
 {
     $openJdkVersion = '11.0.16.1'
     $nssmVersion = '2.24'
@@ -178,7 +178,7 @@ else
         # chmod +x /tmp/install.sh
         # /bin/bash /tmp/install.sh
         # brew install docker
-        Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-mac-amd64 -OutFile /tmp/Docker.dmg
+        Invoke-WebRequest -UseBasicParsing -Uri 'https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-mac-amd64' -OutFile /tmp/Docker.dmg
         sudo hdiutil attach /tmp/Docker.dmg
         sudo /Volumes/Docker/Docker.app/Contents/MacOS/install
         sudo hdiutil detach /Volumes/Docker
@@ -190,6 +190,8 @@ else
     }
     catch
     {
+        # rethrow on
+        # System.Management.Automation.CommandNotFoundException
         Write-Host $_.Exception
         Write-Host $LASTEXITCODE
     }
@@ -208,11 +210,12 @@ else
     $i = 0
     if ($IsWindows)
     {
+        New-NetFirewallRule -Name 'Allow Rundeck' -DisplayName 'Allow Rundeck' -Enabled True -Profile Any -Direction Inbound -Action Allow -LocalPort 4440 -Protocol 'TCP'
         while ((-not (Test-NetConnection -ComputerName localhost -Port 4440).TcpTestSucceeded) -and ($i -lt $maxTries))
         {
-        Write-Host 'Waiting 30 seconds for site to start...'
-        Start-Sleep -Seconds 30
-        ++$i  
+            Write-Host 'Waiting 30 seconds for site to start...'
+            Start-Sleep -Seconds 30
+            ++$i  
         }
     }
     elseif ($IsMacOS)
