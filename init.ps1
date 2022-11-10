@@ -148,6 +148,8 @@ while ((-not (Test-NetConnection -ComputerName localhost -Port 4440).TcpTestSucc
     ++$i  
 }
 
+Start-Sleep -Seconds 30
+
 while (((Invoke-WebRequest -ErrorAction SilentlyContinue -UseBasicParsing -Uri 'http://localhost:4440').Content -notmatch 'Rundeck - Login' ) -and ($i -lt $maxTries))
 {
     Write-Host 'Waiting 30 seconds for site to fully initialize...'
