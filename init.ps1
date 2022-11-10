@@ -45,26 +45,26 @@ $VerbosePreference = 'Continue'
 
 Write-Host 'Starting init.ps1 script'
 
-$openJdkVersion = '11.0.16.1'
+Write-Host ''
+Write-Host ($PSVersionTable | Format-Table -Wrap | Out-String)
+Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
+Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
+Write-Host ''
+
 $rundeckVersion = '4.6.1-20220914'
-if ($IsWindows)
-{
-    $rundeckPath = 'C:\rundeck'
-}
-else
-{
-    $rundeckPath = '/rundeck'
-}
-$rundeckWarFile = Join-Path -Path $rundeckPath -ChildPath 'rundeck.war'
-$nssmVersion = '2.24'
-$msiPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.msi'
-$msiLogPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.log'
-$zipPath = Join-Path -Path $rundeckPath -ChildPath 'nssm.zip'
-$nssmPath = Join-Path -Path $rundeckPath -ChildPath 'nssm.exe'
-$rundeckConfigPath = Join-Path -Path $rundeckPath -ChildPath 'server\config\rundeck-config.properties'
 
 if ($PSVersionTable.PSEdition -eq 'Desktop')
 {
+    $openJdkVersion = '11.0.16.1'
+    $nssmVersion = '2.24'
+    $rundeckPath = 'C:\rundeck'
+    $rundeckWarFile = Join-Path -Path $rundeckPath -ChildPath 'rundeck.war'
+    $msiPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.msi'
+    $msiLogPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.log'
+    $zipPath = Join-Path -Path $rundeckPath -ChildPath 'nssm.zip'
+    $nssmPath = Join-Path -Path $rundeckPath -ChildPath 'nssm.exe'
+    $rundeckConfigPath = Join-Path -Path $rundeckPath -ChildPath 'server\config\rundeck-config.properties'
+
     New-Item -ItemType Directory -Path $rundeckPath
 
     Write-Host 'Install OpenJDK'
@@ -180,6 +180,7 @@ else
         brew install docker
     }
 
+    docker pull rundeck/rundeck:4.6.1-20220914
     docker run -d -p 4440:4440 rundeck/rundeck:4.6.1-20220914
     $maxTries = 10
     $i = 0
