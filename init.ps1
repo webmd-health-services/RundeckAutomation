@@ -47,7 +47,14 @@ Write-Host 'Starting init.ps1 script'
 
 $openJdkVersion = '11.0.16.1'
 $rundeckVersion = '4.6.1-20220914'
-$rundeckPath = 'C:\rundeck'
+if ($IsWindows)
+{
+    $rundeckPath = 'C:\rundeck'
+}
+else
+{
+    $rundeckPath = '/rundeck'
+}
 $rundeckWarFile = Join-Path -Path $rundeckPath -ChildPath 'rundeck.war'
 $nssmVersion = '2.24'
 $msiPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.msi'
