@@ -173,15 +173,37 @@ else
 {
     if ($IsMacOS)
     {
-        Write-Host 'Installing brew and Docker.'
-        Invoke-WebRequest -UseBasicParsing -Uri https://raw.githubusercontent.com/Homebrew/install/master/install.sh -OutFile /tmp/install.sh
-        chmod +x /tmp/install.sh
-        /bin/bash /tmp/install.sh
-        brew install docker
+        Write-Host 'Installing Docker.'
+        # Invoke-WebRequest -UseBasicParsing -Uri https://raw.githubusercontent.com/Homebrew/install/master/install.sh -OutFile /tmp/install.sh
+        # chmod +x /tmp/install.sh
+        # /bin/bash /tmp/install.sh
+        # brew install docker
+        Invoke-WebRequest -UseBasicParsing -Uri https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-mac-amd64 -OutFile /tmp/Docker.dmg
+        sudo hdiutil attach /tmp/Docker.dmg
+        sudo /Volumes/Docker/Docker.app/Contents/MacOS/install
+        sudo hdiutil detach /Volumes/Docker
     }
 
-    docker pull rundeck/rundeck:4.6.1-20220914
-    docker run -d -p 4440:4440 rundeck/rundeck:4.6.1-20220914
+    try
+    {
+        & docker pull rundeck/rundeck:4.6.1-20220914
+    }
+    catch
+    {
+        Write-Host $_.Exception
+        Write-Host $LASTEXITCODE
+    }
+
+    try
+    {
+        & docker run -d -p 4440:4440 rundeck/rundeck:4.6.1-20220914
+    }
+    catch
+    {
+        Write-Host $_.Exception
+        Write-Host $LASTEXITCODE
+    }
+
     $maxTries = 10
     $i = 0
     if ($IsWindows)
