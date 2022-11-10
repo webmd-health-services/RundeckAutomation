@@ -43,6 +43,15 @@ $ErrorActionPreference = 'Stop'
 $InformationPreference = 'Continue'
 $VerbosePreference = 'Continue'
 
+Write-Host ""
+Write-Host "Variables"
+Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
+Write-Host "Environment"
+Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
+Write-Host "PS Version"
+Write-Host ($PSVersionTable | Format-Table -Wrap | Out-String)
+Write-Host ""
+
 Write-Host 'Starting init.ps1 script'
 
 $openJdkVersion = '11.0.16.1'
@@ -79,6 +88,7 @@ if (Test-Path $msiPath)
         }
         else
         {
+            Write-Verbose ($javaPath | Format-List * | Out-String)
             Write-Error "Wrong number of java runtimes found."
         }
         

@@ -49,7 +49,7 @@ BeforeAll {
         )
 
         Import-RundeckProject -Config $Project | Out-Null
-        $projectObject = $ProjectConfig | ConvertFrom-Json
+        $projectObject = $Project | ConvertFrom-Json
         $script:result = Get-RundeckProject -Name $projectObject.name
         
     }

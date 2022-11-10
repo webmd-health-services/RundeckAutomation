@@ -23,7 +23,7 @@ param(
 $originalVerbosePref = $Global:VerbosePreference
 $originalWhatIfPref = $Global:WhatIfPreference
 
-$Global:VerbosePreference = $VerbosePreference = 'Continue' # 'SilentlyContinue'
+$Global:VerbosePreference = $VerbosePreference = 'SilentlyContinue'
 $Global:WhatIfPreference = $WhatIfPreference = $false
 
 try
