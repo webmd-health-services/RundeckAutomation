@@ -1,7 +1,3 @@
-$rundeckPassword = ConvertTo-SecureString -AsPlainText -Force -String 'admin'
-[pscredential]$rundeckCredential = New-Object System.Management.Automation.PSCredential ('admin', $rundeckPassword)
-New-RundeckSession -Uri 'http://localhost:4440' -Credential $rundeckCredential
-
 function GivenAJob
 {
     param(

@@ -51,6 +51,10 @@ try
         Write-Verbose -Message ('Importing module "{0}" from "{1}".' -f $moduleName,$modulePath)
         Import-Module -Name $modulePath
     }
+
+    $rundeckPassword = ConvertTo-SecureString -AsPlainText -Force -String 'admin'
+    [pscredential]$rundeckCredential = New-Object System.Management.Automation.PSCredential ('admin', $rundeckPassword)
+    New-RundeckSession -Uri 'http://localhost:4440' -Credential $rundeckCredential
 }
 finally
 {
