@@ -1,3 +1,4 @@
+Import-Module (Join-Path $PSScriptRoot -ChildPath '../../RundeckAutomation' -Resolve)
 function GivenAJob
 {
     param(
