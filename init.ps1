@@ -22,18 +22,18 @@ function Start-InstallProcess
         [string[]]$ExecutableParameters
     )
 
-    $javaProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
-    $javaProcessInfo.FileName = $ExecutablePath
-    $javaProcessInfo.RedirectStandardError = $true
-    $javaProcessInfo.RedirectStandardOutput = $true
-    $javaProcessInfo.UseShellExecute = $false
-    $javaProcessInfo.Arguments = ($ExecutableParameters -Join ' ')
-    $javaProcess = New-Object System.Diagnostics.Process
-    $javaProcess.StartInfo = $javaProcessInfo
-    $javaProcess.Start() | Out-Null
-    $javaProcess.WaitForExit()
-    $stdout = $javaProcess.StandardOutput.ReadToEnd()
-    $stderr = $javaProcess.StandardError.ReadToEnd()
+    $installProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $installProcessInfo.FileName = $ExecutablePath
+    $installProcessInfo.RedirectStandardError = $true
+    $installProcessInfo.RedirectStandardOutput = $true
+    $installProcessInfo.UseShellExecute = $false
+    $installProcessInfo.Arguments = ($ExecutableParameters -Join ' ')
+    $installProcess = New-Object System.Diagnostics.Process
+    $installProcess.StartInfo = $installProcessInfo
+    $installProcess.Start() | Out-Null
+    $installProcess.WaitForExit()
+    $stdout = $installProcess.StandardOutput.ReadToEnd()
+    $stderr = $installProcess.StandardError.ReadToEnd()
 
     return @{stdout = $stdout; stderr = $stderr}
 }
@@ -80,7 +80,7 @@ if (Test-Path $msiPath)
     else
     {
         $javaPath = Get-ChildItem -Recurse -Force -ErrorAction Ignore -Path 'C:\Program Files\Microsoft' -Filter 'java.exe' | Select-Object -ExpandProperty FullName
-        if ($javaPath.GetType().Name -eq 'String')
+        if ($javaPath.Count -ne 1)
         {
             $javaVersion = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-version')
             Write-Host $javaVersion.stderr
