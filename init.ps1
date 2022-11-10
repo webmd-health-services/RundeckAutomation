@@ -44,6 +44,7 @@ $InformationPreference = 'Continue'
 $VerbosePreference = 'Continue'
 
 Write-Host ""
+& docker version
 Write-Host "Variables"
 Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
 Write-Host "Environment"
