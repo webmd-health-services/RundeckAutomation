@@ -45,18 +45,19 @@ $VerbosePreference = 'Continue'
 
 Write-Host 'Starting init.ps1 script'
 
+$openJdkVersion = '11.0.16.1'
+$rundeckVersion = '4.6.1-20220914'
+$rundeckPath = 'C:\rundeck'
+$rundeckWarFile = Join-Path -Path $rundeckPath -ChildPath 'rundeck.war'
+$nssmVersion = '2.24'
+$msiPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.msi'
+$msiLogPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.log'
+$zipPath = Join-Path -Path $rundeckPath -ChildPath 'nssm.zip'
+$nssmPath = Join-Path -Path $rundeckPath -ChildPath 'nssm.exe'
+$rundeckConfigPath = Join-Path -Path $rundeckPath -ChildPath 'server\config\rundeck-config.properties'
+
 if ($PSVersionTable.PSEdition -eq 'Desktop')
 {
-    $openJdkVersion = '11.0.16.1'
-    $rundeckVersion = '4.6.1-20220914'
-    $rundeckPath = 'C:\rundeck'
-    $rundeckWarFile = Join-Path -Path $rundeckPath -ChildPath 'rundeck.war'
-    $nssmVersion = '2.24'
-    $msiPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.msi'
-    $msiLogPath = Join-Path -Path $rundeckPath -ChildPath 'openjdk.log'
-    $zipPath = Join-Path -Path $rundeckPath -ChildPath 'nssm.zip'
-    $nssmPath = Join-Path -Path $rundeckPath -ChildPath 'nssm.exe'
-    $rundeckConfigPath = Join-Path -Path $rundeckPath -ChildPath 'server\config\rundeck-config.properties'
     New-Item -ItemType Directory -Path $rundeckPath
 
     Write-Host 'Install OpenJDK'
@@ -160,12 +161,12 @@ if ($PSVersionTable.PSEdition -eq 'Desktop')
         ++$i
     }
 
-    Write-Host 'Done with init.ps1 script'
 }
 else
 {
     if ($IsMacOS)
     {
+        Write-Host 'Installing brew and Docker.'
         Invoke-WebRequest -UseBasicParsing -Uri https://raw.githubusercontent.com/Homebrew/install/master/install.sh -OutFile /tmp/install.sh
         chmod +x /tmp/install.sh
         /bin/bash /tmp/install.sh
@@ -209,3 +210,5 @@ else
     Start-Sleep -Seconds 120
 
 }
+
+Write-Host 'Done with init.ps1 script'
