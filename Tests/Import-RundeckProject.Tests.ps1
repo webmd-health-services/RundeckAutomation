@@ -66,12 +66,12 @@ Describe 'Import-RundeckProject' {
 
     }
 
-    # It 'should import a project from JSON config' {
-    #     $project1 = GivenAProjectFile
+    It 'should import a project from JSON config' {
+        $project1 = GivenAProjectFile
 
-    #     WhenImportingAProjectConfig $project1
+        WhenImportingAProjectConfig $project1
 
-    #     ThenReturnsAProject -ProjectConfig $project1
+        ThenReturnsAProject -ProjectConfig $project1
 
-    # }
+    }
 }
