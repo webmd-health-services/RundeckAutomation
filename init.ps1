@@ -43,16 +43,6 @@ $ErrorActionPreference = 'Stop'
 $InformationPreference = 'Continue'
 $VerbosePreference = 'Continue'
 
-Write-Host ""
-& docker version
-Write-Host "Variables"
-Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
-Write-Host "Environment"
-Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
-Write-Host "PS Version"
-Write-Host ($PSVersionTable | Format-Table -Wrap | Out-String)
-Write-Host ""
-
 Write-Host 'Starting init.ps1 script'
 
 $openJdkVersion = '11.0.16.1'

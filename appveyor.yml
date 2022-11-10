@@ -71,14 +71,13 @@ for:
     only:
     - job_group: docker
   build_script:
-  - docker: docker run rundeck/rundeck
+  - docker run rundeck/rundeck
 
 # Build with docker on OSX
 - matrix:
     only:
     - job_group: dockerosx
   build_script:
-  - docker: |
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)";
-        brew install docker;
-        docker run rundeck/rundeck;
+  - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)";
+    brew install docker;
+    docker run rundeck/rundeck;
