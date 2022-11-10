@@ -81,9 +81,8 @@ for:
           Start-Sleep -Seconds 30
           ++$i  
         }
-        Start-Sleep -Seconds 30
-
-Start-Sleep -Seconds 120
+        Start-Sleep -Seconds 120
+        ./build.ps1
 
 # Build with docker on OSX
 - matrix:
@@ -103,3 +102,4 @@ Start-Sleep -Seconds 120
           ++$i  
         }
         Start-Sleep -Seconds 120
+        ./build.ps1
