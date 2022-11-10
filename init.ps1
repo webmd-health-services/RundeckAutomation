@@ -45,7 +45,7 @@ $VerbosePreference = 'Continue'
 
 Write-Host 'Starting init.ps1 script'
 
-if ($PSVersionTable.PSEdition)
+if ($PSVersionTable.PSEdition -eq 'Desktop')
 {
     $openJdkVersion = '11.0.16.1'
     $rundeckVersion = '4.6.1-20220914'
@@ -207,5 +207,5 @@ else
         }        
     }
     Start-Sleep -Seconds 120
-    ./build.ps1
+
 }
