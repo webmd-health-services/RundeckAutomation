@@ -87,7 +87,7 @@ if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 
                 Write-Host $javaVersion.stderr
                 Write-Host 'Installed OpenJDK'
             }
-            elseif ($javaPath.Count -gt 1)
+            else
             {
                 Write-Verbose "`n`nJAVA PATHS::`n$($javaPath | Format-List * | Out-String))::`n`n"
                 Write-Warning "Wrong number of java runtimes found."
