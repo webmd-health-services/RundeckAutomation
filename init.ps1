@@ -47,6 +47,7 @@ Write-Host 'Starting init.ps1 script'
 
 $rundeckVersion = '4.6.1-20220914'
 $openJdkVersion = '11.0.16.1'
+$rundeckWarUri = "https://packagecloud.io/pagerduty/rundeck/packages/java/org.rundeck/rundeck-$($rundeckVersion).war/artifacts/rundeck-$($rundeckVersion).war/download"
 
 if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 'Win32NT'))
 {    
@@ -94,7 +95,7 @@ if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 
     }
 
     Write-Host 'Install Rundeck'
-    Invoke-WebRequest -UseBasicParsing -Uri "https://packagecloud.io/pagerduty/rundeck/packages/java/org.rundeck/rundeck-$($rundeckVersion).war/artifacts/rundeck-$($rundeckVersion).war/download" -OutFile $rundeckWarFile
+    Invoke-WebRequest -UseBasicParsing -Uri $rundeckWarUri -OutFile $rundeckWarFile
     [System.Environment]::SetEnvironmentVariable('RDECK_BASE', $rundeckPath)
     $rundeckInstall = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-jar', $rundeckWarFile, '--installonly')
     Write-Host $rundeckInstall.stdout
@@ -168,14 +169,21 @@ else
     # sudo apt-get update
     # sudo apt-get install -y openjdk-11-jdk openjdk-11-jre openjdk-11-jdk-headless
 
-    $javaVersion = Start-InstallProcess -ExecutablePath 'java' -ExecutableParameters @('-version')
+    if ($isLinux)
+    {
+        $javaPath = '/usr/lib/jvm/java-11-openjdk-amd64/bin/java'
+    }
+    elseif ($IsMacOS)
+    {
+        $javaPath = '/System/Volumes/Data/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home/bin/java'
+    }
+
+    $javaVersion = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-version')
     Write-Host $javaVersion.stderr
     Write-Host 'Installed OpenJDK'
 
-    Get-ChildItem -Recurse -Force -ErrorAction Ignore -Path '/' -Filter 'java' | Select-Object -ExpandProperty FullName
-
     New-Item -ItemType Directory -Name $rundeckPath
-    Invoke-WebRequest -UseBasicParsing -Uri "https://packagecloud.io/pagerduty/rundeck/packages/java/org.rundeck/rundeck-$($rundeckVersion).war/artifacts/rundeck-$($rundeckVersion).war/download" -OutFile "/opt/rundeck/rundeck.war"
+    sudo Invoke-WebRequest -UseBasicParsing -Uri $rundeckWarUri -OutFile $rundeckWarFile
     Push-Location $rundeckPath
     sudo java -jar $rundeckWarFile --installonly
     Pop-Location
@@ -196,12 +204,13 @@ Type=simple
 Environment="JAVA_HOME=/path/to/jvmdir"
 Environment="RDECK_BASE=/opt/rundeck"
 WorkingDirectory=/opt/rundeck
-ExecStart=java -jar /opt/rundeck/rundeck.war
+ExecStart=$($javaPath) -jar /opt/rundeck/rundeck.war
 ExecStop=/bin/kill -15 `$MAINPID
 
 [Install]
 WantedBy=multi-user.target
 "@
+        $serviceFile
         Set-Content -Encoding UTF8 -Value $serviceFile -Path '/etc/systemd/system/rundeck.service'
         sudo systemctl enable rundeck.service
         sudo systemctl start rundeck.service
@@ -220,7 +229,7 @@ WantedBy=multi-user.target
         <string>rundeck</string>
         <key>ProgramArguments</key>
         <array>             
-            <string>java</string>
+            <string>$($javaPath)</string>
             <string>-jar</string>
             <string>/opt/rundeck/rundeck.war</string>
         </array>
@@ -229,9 +238,10 @@ WantedBy=multi-user.target
     </dict>
 </plist>
 "@
-            Set-Content -Path /Library/LaunchDaemons/rundeck.plist -Value $plistFile -Encoding UTF8
-            launchctl load /Library/LaunchDaemons/rundeck.plist
-            launchctl start rundeck
+        $plistFile
+        Set-Content -Path /Library/LaunchDaemons/rundeck.plist -Value $plistFile -Encoding UTF8
+        launchctl load /Library/LaunchDaemons/rundeck.plist
+        launchctl start rundeck
     }
 }
 
