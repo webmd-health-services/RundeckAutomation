@@ -156,18 +156,16 @@ if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 
 }
 else
 {
-    if (-not (Test-Path '/opt'))
-    {
-        New-Item -ItemType Directory -Name '/opt'
-    }
+    & whoami
+    Write-Host '------------------------------------------------------'
+    Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
+    Write-Host '------------------------------------------------------'
+    Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
+    Write-Host '------------------------------------------------------'
 
     $rundeckPath = '/opt/rundeck'
     $rundeckWarFile = Join-Path -Path $rundeckPath -ChildPath 'rundeck.war'
     $rundeckConfigPath = Join-Path -Path $rundeckPath -ChildPath 'server\config\rundeck-config.properties'
-
-    # sudo add-apt-repository ppa:openjdk-r/ppa
-    # sudo apt-get update
-    # sudo apt-get install -y openjdk-11-jdk openjdk-11-jre openjdk-11-jdk-headless
 
     if ($isLinux)
     {
@@ -183,7 +181,9 @@ else
     Write-Host 'Installed OpenJDK'
 
     New-Item -ItemType Directory -Name $rundeckPath
-    sudo Invoke-WebRequest -UseBasicParsing -Uri $rundeckWarUri -OutFile $rundeckWarFile
+    sudo chown (& whoami) $rundeckPath 
+
+    Invoke-WebRequest -UseBasicParsing -Uri $rundeckWarUri -OutFile $rundeckWarFile
     Push-Location $rundeckPath
     sudo java -jar $rundeckWarFile --installonly
     Pop-Location
@@ -204,7 +204,7 @@ Type=simple
 Environment="JAVA_HOME=/path/to/jvmdir"
 Environment="RDECK_BASE=/opt/rundeck"
 WorkingDirectory=/opt/rundeck
-ExecStart=$($javaPath) -jar /opt/rundeck/rundeck.war
+ExecStart=$($javaPath) -jar $($rundeckWarFile)
 ExecStop=/bin/kill -15 `$MAINPID
 
 [Install]
@@ -231,7 +231,7 @@ WantedBy=multi-user.target
         <array>             
             <string>$($javaPath)</string>
             <string>-jar</string>
-            <string>/opt/rundeck/rundeck.war</string>
+            <string>$($rundeckWarFile)</string>
         </array>
         <key>RunAtLoad</key>
         <false/>
@@ -272,10 +272,6 @@ catch
     Write-Host '------------------------------------------------------'
     Write-Host ($PSVersionTable | Format-Table -Wrap | Out-String)
     Write-Host '------------------------------------------------------'
-    # Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
-    # Write-Host '------------------------------------------------------'
-    # Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
-    # Write-Host '------------------------------------------------------'
     Start-Sleep -Seconds 300
 }
 
