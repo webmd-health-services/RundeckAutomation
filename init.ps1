@@ -244,8 +244,8 @@ WantedBy=multi-user.target
         $plistFile
         Set-Content -Path (Join-Path $ENV:HOME 'rundeck.plist') -Value $plistFile -Encoding UTF8
         Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('mv', (Join-Path $ENV:HOME 'rundeck.plist'), '/Library/LaunchDaemons/')
-        launchctl load /Library/LaunchDaemons/rundeck.plist
-        launchctl start rundeck
+        sudo launchctl load /Library/LaunchDaemons/rundeck.plist
+        sudo launchctl start rundeck
     }
 }
 
