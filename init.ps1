@@ -113,13 +113,14 @@ if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 
     New-Item -ItemType Directory -Path (Join-Path -Path $rundeckPath -ChildPath '\var\log')
     Copy-Item -Path $rundeckConfigPath -Destination "$($rundeckConfigPath).orig"
     (Get-Content -Path $rundeckConfigPath) -replace 'server\.address=localhost', 'server.address=0.0.0.0' | Set-Content -Path $rundeckConfigPath -Encoding UTF8
-    if ($PSVersionTable.PSVersion -match '^6\.2\.')
-    {
-        netsh advfirewall firewall add rule name="Allow Rundeck" dir=in action=allow protocol=TCP localport=4440
-    }
-    else
+
+    try
     {
         New-NetFirewallRule -Name 'Allow Rundeck' -DisplayName 'Allow Rundeck' -Enabled True -Profile Any -Direction Inbound -Action Allow -LocalPort 4440 -Protocol 'TCP'
+    }
+    catch
+    {
+        netsh advfirewall firewall add rule name="Allow Rundeck" dir=in action=allow protocol=TCP localport=4440
     }
 
     Write-Host 'Install Rundeck NSSM Windows service'
@@ -180,18 +181,20 @@ elseif ($isLinux)
 {
     sudo add-apt-repository ppa:openjdk-r/ppa
     sudo apt-get update
-    sudo apt-get install -y wget openjdk-11-jdk
+    sudo apt-get install -y openjdk-11-jdk openjdk-11-jre openjdk-11-jdk-headless
 
-    $javaVersion = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-version')
+    $javaVersion = Start-InstallProcess -ExecutablePath 'java' -ExecutableParameters @('-version')
     Write-Host $javaVersion.stderr
     Write-Host 'Installed OpenJDK'
+
+    Get-ChildItem -Recurse -Force -ErrorAction Ignore -Path '/' -Filter 'java' | Select-Object -ExpandProperty FullName
 
     New-Item -ItemType Directory -Name /opt/rundeck
     Invoke-WebRequest -UseBasicParsing -Uri "https://packagecloud.io/pagerduty/rundeck/packages/java/org.rundeck/rundeck-$($rundeckVersion).war/artifacts/rundeck-$($rundeckVersion).war/download" -OutFile "/opt/rundeck/rundeck.war"
     Push-Location /opt/rundeck
     sudo java -jar /opt/rundeck/rundeck.war --installonly
     Pop-Location
-    sudo sed -i 's/server\.address=localhost/server\.address=0\.0\.0\.0/g' /opt/rundeck/server/config/rundeck-config.properties
+    (Get-Content -Path /opt/rundeck/server/config/rundeck-config.properties) -replace 'server\.address=localhost', 'server.address=0.0.0.0' | Set-Content -Path /opt/rundeck/server/config/rundeck-config.properties -Encoding UTF8
     $serviceFile = @"
     [Unit]
     Description=Rundeck
@@ -221,22 +224,24 @@ elseif ($isLinux)
 }
 elseif ($IsMacOS) {
 
-    $javaVersion = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-version')
+    $javaVersion = Start-InstallProcess -ExecutablePath 'java' -ExecutableParameters @('-version')
     Write-Host $javaVersion.stderr
     Write-Host 'Installed OpenJDK'
+
+    Get-ChildItem -Recurse -Force -ErrorAction Ignore -Path '/' -Filter 'java' | Select-Object -ExpandProperty FullName
 
     New-Item -ItemType Directory -Name /opt/rundeck
     Invoke-WebRequest -UseBasicParsing -Uri "https://packagecloud.io/pagerduty/rundeck/packages/java/org.rundeck/rundeck-$($rundeckVersion).war/artifacts/rundeck-$($rundeckVersion).war/download" -OutFile "/opt/rundeck/rundeck.war"
     Push-Location /opt/rundeck
     sudo java -jar /opt/rundeck/rundeck.war --installonly
     Pop-Location
-    sudo sed -i 's/server\.address=localhost/server\.address=0\.0\.0\.0/g' /opt/rundeck/server/config/rundeck-config.properties
+    (Get-Content -Path /opt/rundeck/server/config/rundeck-config.properties) -replace 'server\.address=localhost', 'server.address=0.0.0.0' | Set-Content -Path /opt/rundeck/server/config/rundeck-config.properties -Encoding UTF8
 
     $plistFile = @"
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
-        "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
     <dict>
         <key>Label</key>
         <string>rundeck</string>
@@ -251,7 +256,7 @@ elseif ($IsMacOS) {
         <key>RunAtLoad</key>
         <false/>
     </dict>
-    </plist>
+</plist>
 "@
 
     Set-Content -Path /Library/LaunchDaemons/rundeck.plist -Value $plistFile -Encoding UTF8
