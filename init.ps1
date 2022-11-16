@@ -187,7 +187,7 @@ else
 
     Invoke-WebRequest -UseBasicParsing -Uri $rundeckWarUri -OutFile $rundeckWarFile
     Push-Location $rundeckPath
-    sudo java -jar $rundeckWarFile --installonly
+    Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-jar', $rundeckWarFile, '--installonly')
     Pop-Location
     (Get-Content -Path $rundeckConfigPath) -replace 'server\.address=localhost', 'server.address=0.0.0.0' | Set-Content -Path $rundeckConfigPath -Encoding UTF8
 
