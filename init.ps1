@@ -156,12 +156,6 @@ if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 
 }
 else
 {
-    # & whoami
-    # Write-Host '------------------------------------------------------'
-    # Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
-    # Write-Host '------------------------------------------------------'
-    # Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
-    # Write-Host '------------------------------------------------------'
 
     $rundeckPath = '/opt/rundeck'
     $rundeckWarFile = Join-Path -Path $rundeckPath -ChildPath 'rundeck.war'
@@ -180,9 +174,7 @@ else
     Write-Host $javaVersion.stderr
     Write-Host 'Installed OpenJDK'
 
-    # New-Item -ItemType Directory -Name $rundeckPath -Force
     Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('mkdir', $rundeckPath)
-    Get-Item $rundeckPath
     sudo chown (whoami) $rundeckPath 
 
     Invoke-WebRequest -UseBasicParsing -Uri $rundeckWarUri -OutFile $rundeckWarFile
@@ -215,8 +207,8 @@ WantedBy=multi-user.target
         $serviceFile
         Set-Content -Encoding UTF8 -Value $serviceFile -Path (Join-Path $ENV:HOME 'rundeck.service')
         Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('mv', (Join-Path $ENV:HOME 'rundeck.service'), '/etc/systemd/system/')
-        sudo systemctl enable rundeck.service
-        sudo systemctl start rundeck.service
+        Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('systemctl', 'enable', 'rundeck.service') -AllowedExitCodes @(1)
+        Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('systemctl', 'start', 'rundeck.service')
     }
     elseif ($IsMacOS)
     {
@@ -241,11 +233,16 @@ WantedBy=multi-user.target
     </dict>
 </plist>
 "@
-        $plistFile
+
         Set-Content -Path (Join-Path $ENV:HOME 'rundeck.plist') -Value $plistFile -Encoding UTF8
         Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('mv', (Join-Path $ENV:HOME 'rundeck.plist'), '/Library/LaunchDaemons/')
-        sudo launchctl load /Library/LaunchDaemons/rundeck.plist
-        sudo launchctl start rundeck
+        Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('chown', 'root:wheel', '/Library/LaunchDaemons/rundeck.plist')
+        Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('chmod', 'o-w', '/Library/LaunchDaemons/*')
+
+        sudo ls -l /Library/LaunchDaemons
+
+        Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('launchctl', 'load', '/Library/LaunchDaemons/rundeck.plist')
+        Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('sudo', 'launchctl', 'start', 'rundeck')
     }
 }
 
