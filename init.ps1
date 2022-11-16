@@ -189,7 +189,7 @@ else
     Push-Location $rundeckPath
     Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-jar', $rundeckWarFile, '--installonly')
     Pop-Location
-    (Get-Content -Path $rundeckConfigPath) -replace 'server\.address=localhost', 'server.address=0.0.0.0' | Set-Content -Path $rundeckConfigPath -Encoding UTF8
+    Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('sed', '-i', "'s/server\.address=localhost/server\.address=0\.0\.0\.0/g'", $rundeckConfigPath)
 
     if ($isLinux)
     {
@@ -213,7 +213,8 @@ ExecStop=/bin/kill -15 `$MAINPID
 WantedBy=multi-user.target
 "@
         $serviceFile
-        Set-Content -Encoding UTF8 -Value $serviceFile -Path '/etc/systemd/system/rundeck.service'
+        Set-Content -Encoding UTF8 -Value $serviceFile -Path (Join-Path $ENV:HOME 'rundeck.service')
+        Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('mv', (Join-Path $ENV:HOME 'rundeck.service'), '/etc/systemd/system/')
         sudo systemctl enable rundeck.service
         sudo systemctl start rundeck.service
     }
@@ -241,7 +242,8 @@ WantedBy=multi-user.target
 </plist>
 "@
         $plistFile
-        Set-Content -Path /Library/LaunchDaemons/rundeck.plist -Value $plistFile -Encoding UTF8
+        Set-Content -Path (Join-Path $ENV:HOME 'rundeck.plist') -Value $plistFile -Encoding UTF8
+        Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('mv', (Join-Path $ENV:HOME 'rundeck.plist'), '/Library/LaunchDaemons/')
         launchctl load /Library/LaunchDaemons/rundeck.plist
         launchctl start rundeck
     }
