@@ -80,19 +80,18 @@ if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 
         }
         else
         {
-            $javaPath = Get-ChildItem -Recurse -Force -ErrorAction Ignore -Path 'C:\Program Files\Microsoft' -Filter 'java.exe' | Select-Object -ExpandProperty FullName
-            if ($javaPath.GetType().Name -eq 'String')
+            $javaPath = Get-ChildItem -Recurse -Force -ErrorAction Ignore -Path 'C:\Program Files\Microsoft' -Filter 'java.exe' | Where-Object { $_.FullName -match $openJdkVersion } | Select-Object -ExpandProperty FullName
+            if ($javaPath.GetType().Name -ne 'String')
             {
                 $javaVersion = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-version')
                 Write-Host $javaVersion.stderr
                 Write-Host 'Installed OpenJDK'
             }
-            else
+            elseif ($javaPath.Count -gt 1)
             {
                 Write-Verbose "`n`nJAVA PATHS::`n$($javaPath | Format-List * | Out-String))::`n`n"
-                Write-Error "Wrong number of java runtimes found."
+                Write-Warning "Wrong number of java runtimes found."
             }
-            
         }
     }
     else
@@ -114,7 +113,14 @@ if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 
     New-Item -ItemType Directory -Path (Join-Path -Path $rundeckPath -ChildPath '\var\log')
     Copy-Item -Path $rundeckConfigPath -Destination "$($rundeckConfigPath).orig"
     (Get-Content -Path $rundeckConfigPath) -replace 'server\.address=localhost', 'server.address=0.0.0.0' | Set-Content -Path $rundeckConfigPath -Encoding UTF8
-    New-NetFirewallRule -Name 'Allow Rundeck' -DisplayName 'Allow Rundeck' -Enabled True -Profile Any -Direction Inbound -Action Allow -LocalPort 4440 -Protocol 'TCP'
+    if ($PSVersionTable.PSVersion -match '^6\.2\.')
+    {
+        netsh advfirewall firewall add rule name="Allow Rundeck" dir=in action=allow protocol=TCP localport=4440
+    }
+    else
+    {
+        New-NetFirewallRule -Name 'Allow Rundeck' -DisplayName 'Allow Rundeck' -Enabled True -Profile Any -Direction Inbound -Action Allow -LocalPort 4440 -Protocol 'TCP'
+    }
 
     Write-Host 'Install Rundeck NSSM Windows service'
     Invoke-WebRequest -UseBasicParsing -Uri "http://nssm.cc/release/nssm-$($nssmVersion).zip" -OutFile $zipPath
