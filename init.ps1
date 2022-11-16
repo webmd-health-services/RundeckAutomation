@@ -45,17 +45,11 @@ $VerbosePreference = 'Continue'
 
 Write-Host 'Starting init.ps1 script'
 
-# Write-Host ''
-# Write-Host ($PSVersionTable | Format-Table -Wrap | Out-String)
-# Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
-# Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
-# Write-Host ''
-
 $rundeckVersion = '4.6.1-20220914'
+$openJdkVersion = '11.0.16.1'
 
 if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 'Win32NT'))
-{
-    $openJdkVersion = '11.0.16.1'
+{    
     $nssmVersion = '2.24'
     $rundeckPath = 'C:\rundeck'
     $rundeckWarFile = Join-Path -Path $rundeckPath -ChildPath 'rundeck.war'
@@ -158,30 +152,21 @@ if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 
     Start-Service -Name 'RUNDECK'
 
     Start-Sleep -Seconds 5
-    # $maxTries = 10
-    # $i = 0
-    # while ((-not (Test-NetConnection -ComputerName localhost -Port 4440).TcpTestSucceeded) -and ($i -lt $maxTries))
-    # {
-    #     Write-Host 'Waiting 30 seconds for site to start...'
-    #     Start-Sleep -Seconds 30
-    #     ++$i  
-    # }
-
-    # Start-Sleep -Seconds 30
-
-    # while (((Invoke-WebRequest -ErrorAction SilentlyContinue -UseBasicParsing -Uri 'http://localhost:4440').Content -notmatch 'Rundeck - Login' ) -and ($i -lt $maxTries))
-    # {
-    #     Write-Host 'Waiting 30 seconds for site to fully initialize...'
-    #     Start-Sleep -Seconds 30
-    #     ++$i
-    # }
-
 }
-elseif ($isLinux)
+else
 {
-    sudo add-apt-repository ppa:openjdk-r/ppa
-    sudo apt-get update
-    sudo apt-get install -y openjdk-11-jdk openjdk-11-jre openjdk-11-jdk-headless
+    if (-not (Test-Path '/opt'))
+    {
+        New-Item -ItemType Directory -Name '/opt'
+    }
+
+    $rundeckPath = '/opt/rundeck'
+    $rundeckWarFile = Join-Path -Path $rundeckPath -ChildPath 'rundeck.war'
+    $rundeckConfigPath = Join-Path -Path $rundeckPath -ChildPath 'server\config\rundeck-config.properties'
+
+    # sudo add-apt-repository ppa:openjdk-r/ppa
+    # sudo apt-get update
+    # sudo apt-get install -y openjdk-11-jdk openjdk-11-jre openjdk-11-jdk-headless
 
     $javaVersion = Start-InstallProcess -ExecutablePath 'java' -ExecutableParameters @('-version')
     Write-Host $javaVersion.stderr
@@ -189,55 +174,41 @@ elseif ($isLinux)
 
     Get-ChildItem -Recurse -Force -ErrorAction Ignore -Path '/' -Filter 'java' | Select-Object -ExpandProperty FullName
 
-    New-Item -ItemType Directory -Name /opt/rundeck
+    New-Item -ItemType Directory -Name $rundeckPath
     Invoke-WebRequest -UseBasicParsing -Uri "https://packagecloud.io/pagerduty/rundeck/packages/java/org.rundeck/rundeck-$($rundeckVersion).war/artifacts/rundeck-$($rundeckVersion).war/download" -OutFile "/opt/rundeck/rundeck.war"
-    Push-Location /opt/rundeck
-    sudo java -jar /opt/rundeck/rundeck.war --installonly
+    Push-Location $rundeckPath
+    sudo java -jar $rundeckWarFile --installonly
     Pop-Location
-    (Get-Content -Path /opt/rundeck/server/config/rundeck-config.properties) -replace 'server\.address=localhost', 'server.address=0.0.0.0' | Set-Content -Path /opt/rundeck/server/config/rundeck-config.properties -Encoding UTF8
-    $serviceFile = @"
-    [Unit]
-    Description=Rundeck
-    After=syslog.target network.target
-    
-    [Service]
-    SuccessExitStatus=143
-    
-    # User=rundeck
-    # Group=rundeck
-    
-    Type=simple
-    
-    Environment="JAVA_HOME=/path/to/jvmdir"
-    Environment="RDECK_BASE=/opt/rundeck"
-    WorkingDirectory=/opt/rundeck
-    # ExecStart=`${JAVA_HOME}/bin/java -jar /opt/rundeck/rundeck.war
-    ExecStart=java -jar /opt/rundeck/rundeck.war
-    ExecStop=/bin/kill -15 `$MAINPID
-    
-    [Install]
-    WantedBy=multi-user.target
+    (Get-Content -Path $rundeckConfigPath) -replace 'server\.address=localhost', 'server.address=0.0.0.0' | Set-Content -Path $rundeckConfigPath -Encoding UTF8
+
+    if ($isLinux)
+    {
+        $serviceFile = @"
+[Unit]
+Description=Rundeck
+After=syslog.target network.target
+
+[Service]
+SuccessExitStatus=143
+
+Type=simple
+
+Environment="JAVA_HOME=/path/to/jvmdir"
+Environment="RDECK_BASE=/opt/rundeck"
+WorkingDirectory=/opt/rundeck
+ExecStart=java -jar /opt/rundeck/rundeck.war
+ExecStop=/bin/kill -15 `$MAINPID
+
+[Install]
+WantedBy=multi-user.target
 "@
-    Set-Content -Encoding UTF8 -Value $serviceFile -Path '/etc/systemd/system/rundeck.service'
-    sudo systemctl enable rundeck.service
-    sudo systemctl start rundeck.service
-}
-elseif ($IsMacOS) {
-
-    $javaVersion = Start-InstallProcess -ExecutablePath 'java' -ExecutableParameters @('-version')
-    Write-Host $javaVersion.stderr
-    Write-Host 'Installed OpenJDK'
-
-    Get-ChildItem -Recurse -Force -ErrorAction Ignore -Path '/' -Filter 'java' | Select-Object -ExpandProperty FullName
-
-    New-Item -ItemType Directory -Name /opt/rundeck
-    Invoke-WebRequest -UseBasicParsing -Uri "https://packagecloud.io/pagerduty/rundeck/packages/java/org.rundeck/rundeck-$($rundeckVersion).war/artifacts/rundeck-$($rundeckVersion).war/download" -OutFile "/opt/rundeck/rundeck.war"
-    Push-Location /opt/rundeck
-    sudo java -jar /opt/rundeck/rundeck.war --installonly
-    Pop-Location
-    (Get-Content -Path /opt/rundeck/server/config/rundeck-config.properties) -replace 'server\.address=localhost', 'server.address=0.0.0.0' | Set-Content -Path /opt/rundeck/server/config/rundeck-config.properties -Encoding UTF8
-
-    $plistFile = @"
+        Set-Content -Encoding UTF8 -Value $serviceFile -Path '/etc/systemd/system/rundeck.service'
+        sudo systemctl enable rundeck.service
+        sudo systemctl start rundeck.service
+    }
+    elseif ($IsMacOS)
+    {
+        $plistFile = @"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
     "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -258,34 +229,44 @@ elseif ($IsMacOS) {
     </dict>
 </plist>
 "@
-
-    Set-Content -Path /Library/LaunchDaemons/rundeck.plist -Value $plistFile -Encoding UTF8
-    launchctl load /Library/LaunchDaemons/rundeck.plist
-    launchctl start rundeck
-
-}
-else
-{
-    Write-Error 'Unhandled OS'
+            Set-Content -Path /Library/LaunchDaemons/rundeck.plist -Value $plistFile -Encoding UTF8
+            launchctl load /Library/LaunchDaemons/rundeck.plist
+            launchctl start rundeck
+    }
 }
 
 Start-Sleep -Seconds 5
 $maxTries = 10
 $i = 0
-while ((-not (Test-NetConnection -ComputerName localhost -Port 4440).TcpTestSucceeded) -and ($i -lt $maxTries))
+
+try
 {
-    Write-Host 'Waiting 30 seconds for site to start...'
+    while ((-not (Test-NetConnection -ComputerName localhost -Port 4440).TcpTestSucceeded) -and ($i -lt $maxTries))
+    {
+        Write-Host 'Waiting 30 seconds for site to start...'
+        Start-Sleep -Seconds 30
+        ++$i  
+    }
+    
     Start-Sleep -Seconds 30
-    ++$i  
+    
+    while (((Invoke-WebRequest -ErrorAction SilentlyContinue -UseBasicParsing -Uri 'http://localhost:4440').Content -notmatch 'Rundeck - Login' ) -and ($i -lt $maxTries))
+    {
+        Write-Host 'Waiting 30 seconds for site to fully initialize...'
+        Start-Sleep -Seconds 30
+        ++$i
+    }   
 }
-
-Start-Sleep -Seconds 30
-
-while (((Invoke-WebRequest -ErrorAction SilentlyContinue -UseBasicParsing -Uri 'http://localhost:4440').Content -notmatch 'Rundeck - Login' ) -and ($i -lt $maxTries))
+catch
 {
-    Write-Host 'Waiting 30 seconds for site to fully initialize...'
-    Start-Sleep -Seconds 30
-    ++$i
+    Write-Host '------------------------------------------------------'
+    Write-Host ($PSVersionTable | Format-Table -Wrap | Out-String)
+    Write-Host '------------------------------------------------------'
+    # Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
+    # Write-Host '------------------------------------------------------'
+    # Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
+    # Write-Host '------------------------------------------------------'
+    Start-Sleep -Seconds 300
 }
 
 Write-Host 'Done with init.ps1 script'
