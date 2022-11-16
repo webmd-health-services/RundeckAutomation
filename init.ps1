@@ -181,7 +181,7 @@ else
     Write-Host 'Installed OpenJDK'
 
     # New-Item -ItemType Directory -Name $rundeckPath -Force
-    Start-InstallProcess -ExecutablePath 'mkdir' -ExecutableParameters @($rundeckPath)
+    Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('mkdir', $rundeckPath)
     Get-Item $rundeckPath
     sudo chown (whoami) $rundeckPath 
 
