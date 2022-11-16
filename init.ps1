@@ -155,99 +155,132 @@ if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 
 
     Write-Host 'Install done.  Starting Service.'
     Start-Service -Name 'RUNDECK'
+
     Start-Sleep -Seconds 5
-    $maxTries = 10
-    $i = 0
-    while ((-not (Test-NetConnection -ComputerName localhost -Port 4440).TcpTestSucceeded) -and ($i -lt $maxTries))
-    {
-        Write-Host 'Waiting 30 seconds for site to start...'
-        Start-Sleep -Seconds 30
-        ++$i  
-    }
+    # $maxTries = 10
+    # $i = 0
+    # while ((-not (Test-NetConnection -ComputerName localhost -Port 4440).TcpTestSucceeded) -and ($i -lt $maxTries))
+    # {
+    #     Write-Host 'Waiting 30 seconds for site to start...'
+    #     Start-Sleep -Seconds 30
+    #     ++$i  
+    # }
 
-    Start-Sleep -Seconds 30
+    # Start-Sleep -Seconds 30
 
-    while (((Invoke-WebRequest -ErrorAction SilentlyContinue -UseBasicParsing -Uri 'http://localhost:4440').Content -notmatch 'Rundeck - Login' ) -and ($i -lt $maxTries))
-    {
-        Write-Host 'Waiting 30 seconds for site to fully initialize...'
-        Start-Sleep -Seconds 30
-        ++$i
-    }
+    # while (((Invoke-WebRequest -ErrorAction SilentlyContinue -UseBasicParsing -Uri 'http://localhost:4440').Content -notmatch 'Rundeck - Login' ) -and ($i -lt $maxTries))
+    # {
+    #     Write-Host 'Waiting 30 seconds for site to fully initialize...'
+    #     Start-Sleep -Seconds 30
+    #     ++$i
+    # }
+
+}
+elseif ($isLinux)
+{
+    sudo add-apt-repository ppa:openjdk-r/ppa
+    sudo apt-get update
+    sudo apt-get install -y wget openjdk-11-jdk
+
+    $javaVersion = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-version')
+    Write-Host $javaVersion.stderr
+    Write-Host 'Installed OpenJDK'
+
+    New-Item -ItemType Directory -Name /opt/rundeck
+    Invoke-WebRequest -UseBasicParsing -Uri "https://packagecloud.io/pagerduty/rundeck/packages/java/org.rundeck/rundeck-$($rundeckVersion).war/artifacts/rundeck-$($rundeckVersion).war/download" -OutFile "/opt/rundeck/rundeck.war"
+    Push-Location /opt/rundeck
+    sudo java -jar /opt/rundeck/rundeck.war --installonly
+    Pop-Location
+    sudo sed -i 's/server\.address=localhost/server\.address=0\.0\.0\.0/g' /opt/rundeck/server/config/rundeck-config.properties
+    $serviceFile = @"
+    [Unit]
+    Description=Rundeck
+    After=syslog.target network.target
+    
+    [Service]
+    SuccessExitStatus=143
+    
+    # User=rundeck
+    # Group=rundeck
+    
+    Type=simple
+    
+    Environment="JAVA_HOME=/path/to/jvmdir"
+    Environment="RDECK_BASE=/opt/rundeck"
+    WorkingDirectory=/opt/rundeck
+    # ExecStart=`${JAVA_HOME}/bin/java -jar /opt/rundeck/rundeck.war
+    ExecStart=java -jar /opt/rundeck/rundeck.war
+    ExecStop=/bin/kill -15 `$MAINPID
+    
+    [Install]
+    WantedBy=multi-user.target
+"@
+    Set-Content -Encoding UTF8 -Value $serviceFile -Path '/etc/systemd/system/rundeck.service'
+    sudo systemctl enable rundeck.service
+    sudo systemctl start rundeck.service
+}
+elseif ($IsMacOS) {
+
+    $javaVersion = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-version')
+    Write-Host $javaVersion.stderr
+    Write-Host 'Installed OpenJDK'
+
+    New-Item -ItemType Directory -Name /opt/rundeck
+    Invoke-WebRequest -UseBasicParsing -Uri "https://packagecloud.io/pagerduty/rundeck/packages/java/org.rundeck/rundeck-$($rundeckVersion).war/artifacts/rundeck-$($rundeckVersion).war/download" -OutFile "/opt/rundeck/rundeck.war"
+    Push-Location /opt/rundeck
+    sudo java -jar /opt/rundeck/rundeck.war --installonly
+    Pop-Location
+    sudo sed -i 's/server\.address=localhost/server\.address=0\.0\.0\.0/g' /opt/rundeck/server/config/rundeck-config.properties
+
+    $plistFile = @"
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
+        "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>rundeck</string>
+        <key>ServiceDescription</key>
+        <string>rundeck</string>
+        <key>ProgramArguments</key>
+        <array>             
+            <string>java</string>
+            <string>-jar</string>
+            <string>/opt/rundeck/rundeck.war</string>
+        </array>
+        <key>RunAtLoad</key>
+        <false/>
+    </dict>
+    </plist>
+"@
+
+    Set-Content -Path /Library/LaunchDaemons/rundeck.plist -Value $plistFile -Encoding UTF8
+    launchctl load /Library/LaunchDaemons/rundeck.plist
+    launchctl start rundeck
 
 }
 else
 {
-    if ($IsMacOS)
-    {
-        Write-Host 'Installing Docker.'
-        # Invoke-WebRequest -UseBasicParsing -Uri https://raw.githubusercontent.com/Homebrew/install/master/install.sh -OutFile /tmp/install.sh
-        # chmod +x /tmp/install.sh
-        # /bin/bash /tmp/install.sh
-        # brew install docker
-        Invoke-WebRequest -UseBasicParsing -Uri 'https://desktop.docker.com/mac/main/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-mac-amd64' -OutFile /tmp/Docker.dmg
-        sudo hdiutil attach /tmp/Docker.dmg
-        sudo /Volumes/Docker/Docker.app/Contents/MacOS/install
-        sudo hdiutil detach /Volumes/Docker
-    }
+    Write-Error 'Unhandled OS'
+}
 
-    try
-    {
-        & docker pull rundeck/rundeck:4.6.1-20220914
-    }
-    catch
-    {
-        # rethrow on
-        # System.Management.Automation.CommandNotFoundException
-        Write-Host $_.Exception
-        Write-Host $LASTEXITCODE
-    }
+Start-Sleep -Seconds 5
+$maxTries = 10
+$i = 0
+while ((-not (Test-NetConnection -ComputerName localhost -Port 4440).TcpTestSucceeded) -and ($i -lt $maxTries))
+{
+    Write-Host 'Waiting 30 seconds for site to start...'
+    Start-Sleep -Seconds 30
+    ++$i  
+}
 
-    try
-    {
-        & docker run -d -p 4440:4440 rundeck/rundeck:4.6.1-20220914
-    }
-    catch
-    {
-        Write-Host $_.Exception
-        Write-Host $LASTEXITCODE
-    }
+Start-Sleep -Seconds 30
 
-    $maxTries = 10
-    $i = 0
-    if ($IsWindows)
-    {
-        New-NetFirewallRule -Name 'Allow Rundeck' -DisplayName 'Allow Rundeck' -Enabled True -Profile Any -Direction Inbound -Action Allow -LocalPort 4440 -Protocol 'TCP'
-        while ((-not (Test-NetConnection -ComputerName localhost -Port 4440).TcpTestSucceeded) -and ($i -lt $maxTries))
-        {
-            Write-Host 'Waiting 30 seconds for site to start...'
-            Start-Sleep -Seconds 30
-            ++$i  
-        }
-    }
-    elseif ($IsMacOS)
-    {
-        $output = & netstat -anp tcp | Select-String 'LISTEN' | Select-String '4440'
-        while (-not ( $output))
-        {
-            Write-Host 'Waiting 30 seconds for site to start...'
-            Start-Sleep -Seconds 30
-            $output = & netstat -anp tcp | Select-String 'LISTEN' | Select-String '4440'
-            ++$i  
-        }
-    }
-    else
-    {
-        $output = & netstat -tulpn | Select-String 'LISTEN' | Select-String '4440'
-        while (-not ( $output))
-        {
-            Write-Host 'Waiting 30 seconds for site to start...'
-            Start-Sleep -Seconds 30
-            $output = & netstat -tulpn | Select-String 'LISTEN' | Select-String '4440'
-            ++$i  
-        }        
-    }
-    Start-Sleep -Seconds 120
-
+while (((Invoke-WebRequest -ErrorAction SilentlyContinue -UseBasicParsing -Uri 'http://localhost:4440').Content -notmatch 'Rundeck - Login' ) -and ($i -lt $maxTries))
+{
+    Write-Host 'Waiting 30 seconds for site to fully initialize...'
+    Start-Sleep -Seconds 30
+    ++$i
 }
 
 Write-Host 'Done with init.ps1 script'
