@@ -14,7 +14,7 @@ function GivenAJob
     $jobName = -join ((65..90) + (97..122) | Get-Random -Count 8 | ForEach-Object {[char]$_})
     $jobId = [guid]::NewGuid().ToString()
     $jobFilePath = New-TemporaryFile
-    $jobCommand = 'dir'
+    $jobCommand = 'echo "hello world"'
 
     if ($shouldBeDisabled)
     {
