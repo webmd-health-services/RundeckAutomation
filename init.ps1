@@ -156,12 +156,12 @@ if (($PSVersionTable.PSEdition -eq 'Desktop') -or ($PSVersionTable.Platform -eq 
 }
 else
 {
-    & whoami
-    Write-Host '------------------------------------------------------'
-    Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
-    Write-Host '------------------------------------------------------'
-    Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
-    Write-Host '------------------------------------------------------'
+    # & whoami
+    # Write-Host '------------------------------------------------------'
+    # Write-Host (Get-ChildItem ENV: | Format-Table -Wrap | Out-String)
+    # Write-Host '------------------------------------------------------'
+    # Write-Host (Get-Variable | Format-Table -Wrap | Out-String)
+    # Write-Host '------------------------------------------------------'
 
     $rundeckPath = '/opt/rundeck'
     $rundeckWarFile = Join-Path -Path $rundeckPath -ChildPath 'rundeck.war'
@@ -180,8 +180,10 @@ else
     Write-Host $javaVersion.stderr
     Write-Host 'Installed OpenJDK'
 
-    New-Item -ItemType Directory -Name $rundeckPath
-    sudo chown (& whoami) $rundeckPath 
+    New-Item -ItemType Directory -Name $rundeckPath -Force
+    Start-InstallProcess -ExecutablePath 'sh' -ExecutableParameters @('mkdir', $rundeckPath)
+    Get-Item $rundeckPath
+    sudo chown (whoami) $rundeckPath 
 
     Invoke-WebRequest -UseBasicParsing -Uri $rundeckWarUri -OutFile $rundeckWarFile
     Push-Location $rundeckPath
