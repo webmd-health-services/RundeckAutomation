@@ -180,8 +180,8 @@ else
     Write-Host $javaVersion.stderr
     Write-Host 'Installed OpenJDK'
 
-    New-Item -ItemType Directory -Name $rundeckPath -Force
-    Start-InstallProcess -ExecutablePath 'sh' -ExecutableParameters @('mkdir', $rundeckPath)
+    # New-Item -ItemType Directory -Name $rundeckPath -Force
+    Start-InstallProcess -ExecutablePath 'mkdir' -ExecutableParameters @($rundeckPath)
     Get-Item $rundeckPath
     sudo chown (whoami) $rundeckPath 
 
