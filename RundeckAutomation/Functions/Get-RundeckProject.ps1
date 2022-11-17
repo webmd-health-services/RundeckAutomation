@@ -26,13 +26,11 @@ function Get-RundeckProject
     param(
         # The project's name.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByName')]
-        [string]
-        $Name,
+        [String] $Name,
 
         # The project name filter.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByFilter')]
-        [string]
-        $Filter
+        [String] $Filter
     )
 
     process

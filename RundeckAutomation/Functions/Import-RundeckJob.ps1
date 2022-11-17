@@ -15,17 +15,14 @@ function Import-RundeckJob
     param(
         # The path to an XML job definition file.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        [string]
-        $Path,
+        [String] $Path,
 
         # The project name.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        [string]
-        $ProjectName,
+        [String] $ProjectName,
 
         # Do not preserve the UUID for the job when importing.
-        [switch]
-        $RemoveUuid
+        [Switch] $RemoveUuid
     )
 
     process

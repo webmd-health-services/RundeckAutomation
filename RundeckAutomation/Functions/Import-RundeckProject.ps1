@@ -22,13 +22,11 @@ function Import-RundeckProject
     param(
         # The project's configuration in JSON format.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByJson')]
-        [string]
-        $Config,
+        [String] $Config,
 
         # The project's configuration as a XML Document.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByFile')]
-        [string]
-        $File
+        [String] $File
     )
 
     process

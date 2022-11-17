@@ -1,7 +1,6 @@
-/.output
+.*
+!.github
 /PSModules
-/.vscode
-/.vagrant
 /Vagrantfile
 /RundeckAutomation/CHANGELOG.md
 /RundeckAutomation/LICENSE

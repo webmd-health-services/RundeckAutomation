@@ -15,8 +15,7 @@ function Enable-RundeckJobSchedule
     param(
         # The job ID.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        [GUID]
-        $ID
+        [Guid] $ID
     )
 
     process

@@ -15,13 +15,11 @@ function Export-RundeckProject
     param(
         # The path to an zip project archive file.
         [Parameter(Mandatory)]
-        [string]
-        $Path,
+        [String] $Path,
 
         # The project name.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        [string]
-        $Name
+        [String] $Name
     )
 
     process

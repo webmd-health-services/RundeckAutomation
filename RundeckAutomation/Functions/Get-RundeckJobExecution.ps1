@@ -8,20 +8,19 @@ function Get-RundeckJobExecution
     The `Get-RundeckJobExecution` function gets a job execution status from Rundeck.
 
     .EXAMPLE
-    Get-RundeckJobExecution -Uri 'https://rundeck.test.webmdhealth.com/api/41/execution/406'
+    Get-RundeckJobExecution -ID '406'
 
-    Demonstrates how to get a specific job execution using its URI.
+    Demonstrates how to get a specific job execution (406) using its ID.
     #>
     param(
-        # The job's name.
-        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByUri')]
-        [string]
-        $ID
+        # The execution ID number (usually an incrementing integer in Rundeck global to the server).
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [Int16] $ID
     )
 
     process
     {
-        $status = Invoke-RundeckRestMethod -Method 'GET' -ResourcePath "execution/$($Id)"
+        $status = Invoke-RundeckRestMethod -Method 'GET' -ResourcePath "execution/$($ID)"
         return $status
     }
 }

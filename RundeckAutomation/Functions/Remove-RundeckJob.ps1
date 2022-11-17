@@ -9,7 +9,7 @@ function Remove-RundeckJob
 
     .EXAMPLE
     $job = Get-RundeckJob -ProjectName 'demoproject' -Name 'demojob'
-    Remove-RundeckJob -Id $job.id
+    Remove-RundeckJob -ID $job.id
 
     Demonstrates how to remove the 'demojob' job from the 'demoproject' project
     #>
@@ -17,12 +17,11 @@ function Remove-RundeckJob
     param(
         # The job's ID.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        [guid]
-        $ID
+        [Guid] $ID
     )
 
     process
     {
-        Invoke-RundeckRestMethod -Method 'DELETe' -ResourcePath "/api/11/job/$($iD)"
+        Invoke-RundeckRestMethod -Method 'DELETe' -ResourcePath "/api/11/job/$($ID)"
     }
 }

@@ -18,22 +18,18 @@ function New-RundeckSession
     param(
         # The URI to the Rundeck instance to connect to.
         [Parameter(Mandatory)]
-        [uri]
-        $Uri,
+        [Uri] $Uri,
 
         # The credentials to use.
         [Parameter(Mandatory, ParameterSetName = 'username')]
-        [pscredential]
-        $Credential,
+        [PSCredential] $Credential,
 
         # The credentials to use.
         [Parameter(Mandatory, ParameterSetName = 'apitoken')]
-        [string]
-        $ApiToken,
+        [String] $ApiToken,
 
         # Optional specify API version.  Defaults to 41.
-        [string]
-        $ApiVersion = 41
+        [String] $ApiVersion = 41
     )
 
     Set-StrictMode -Version 'Latest'

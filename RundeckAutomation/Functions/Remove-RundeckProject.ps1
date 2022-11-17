@@ -16,8 +16,7 @@ function Remove-RundeckProject
     param(
         # The project's name.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        [string]
-        $Name
+        [String] $Name
     )
 
     process

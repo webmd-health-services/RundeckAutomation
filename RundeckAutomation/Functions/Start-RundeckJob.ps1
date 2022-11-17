@@ -11,24 +11,25 @@ function Start-RundeckJob
     Start-RundeckJob -ID 'b090d4c8-585c-4330-8bc6-ad4783089dfd'
 
     Demonstrates how to start a specific job usng its ID.
+
+    .EXAMPLE
+    Start-RundeckJob -ID 'b090d4c8-585c-4330-8bc6-ad4783089dfd' -RunAtTime (Get-Date).AddDays(7)
+
+    Demonstrates how to start a specific job usng its ID in a week.
     #>
     param(
         # The job's ID.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName='ByID')]
-        [guid]
-        $ID,
+        [Guid] $ID,
 
         # The optional time to start the job.
-        [datetime]
-        $RunAtTime,
+        [DateTime] $RunAtTime,
 
         # Wait for job to complete or fail.
-        [switch]
-        $Wait,
+        [Switch] $Wait,
 
-        # Seconds to wait for a job to start before polling whether job status is "running".
-        [int]
-        $WaitInterval = 10
+        # Optional duration to re-test when waiting for job completion.
+        [TimeSpan]$WaitInterval = [TimeSpan]'00:00:10'
     )
 
     process
@@ -53,7 +54,7 @@ function Start-RundeckJob
         {
             while ($jobRun.status -eq 'running')
             {
-                Start-Sleep -Seconds $WaitInterval
+                Start-Sleep -Milliseconds $WaitInterval.TotalMilliseconds
                 $jobRun = Get-RundeckJobExecution -ID $jobRun.id
             }
         }

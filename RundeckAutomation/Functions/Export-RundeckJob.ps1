@@ -15,18 +15,15 @@ function Export-RundeckJob
     param(
         # The path to an XML job definition file.
         [Parameter(Mandatory)]
-        [string]
-        $Path,
+        [String] $Path,
 
         # The project name.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        [string]
-        $ProjectName,
+        [String] $ProjectName,
 
         # The job ID.
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        [GUID]
-        $ID
+        [Guid] $ID
     )
 
     process
