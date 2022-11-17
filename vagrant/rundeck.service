@@ -1,0 +1,21 @@
+[Unit]
+Description=Rundeck
+After=syslog.target network.target
+
+[Service]
+SuccessExitStatus=143
+
+# User=rundeck
+# Group=rundeck
+
+Type=simple
+
+Environment="JAVA_HOME=/path/to/jvmdir"
+Environment="RDECK_BASE=/opt/rundeck"
+WorkingDirectory=/opt/rundeck
+# ExecStart=${JAVA_HOME}/bin/java -Xmx4g -jar /opt/rundeck/rundeck.war
+ExecStart=java -Xmx4g -jar /opt/rundeck/rundeck.war
+ExecStop=/bin/kill -15 $MAINPID
+
+[Install]
+WantedBy=multi-user.target

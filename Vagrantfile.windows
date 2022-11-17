@@ -1,0 +1,30 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$provisionScript = <<-SCRIPT
+powershell.exe /vagrant/init.ps1
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.define "rundeckautomation" do |rd|
+    rd.vm.hostname = "vagrant-rundeck"
+
+    rd.vm.box = "jimbo8098/windows2019core"
+    # rd.vm.box = "jimbo8098/windows2019standard"
+
+    rd.vm.network "forwarded_port", guest: 4440, host: 4440, auto_correct: true
+
+    rd.vm.provider "virtualbox" do |vm|
+      vm.memory = 4096
+      vm.cpus = 2
+      vm.gui = false
+    end
+  end
+
+  config.vm.provision "shell", inline: $provisionScript
+
+  config.trigger.after [:up, :resume] do |trigger|
+    trigger.info = "Rundeck UI should be available at http://localhost:4440.  Confirm port mapping with 'vagrant port rundeckautomation'."
+  end
+
+end

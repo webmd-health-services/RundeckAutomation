@@ -1,3 +1,8 @@
-/.output
+.*
+!.github
 /PSModules
-/.vscode
+/Vagrantfile
+/RundeckAutomation/CHANGELOG.md
+/RundeckAutomation/LICENSE
+/RundeckAutomation/NOTICE
+/RundeckAutomation/README.md
