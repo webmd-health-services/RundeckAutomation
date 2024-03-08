@@ -54,7 +54,15 @@ try
 
     $rundeckPassword = ConvertTo-SecureString -AsPlainText -Force -String 'admin'
     [pscredential]$rundeckCredential = New-Object System.Management.Automation.PSCredential ('admin', $rundeckPassword)
-    New-RundeckSession -Uri 'http://localhost:4440' -Credential $rundeckCredential
+    $rundeckServer = 'http://localhost:4440'
+    if ($ENV:VAGRANT_DEFAULT_PROVIDER -eq 'hyperv')
+    {
+        if ((& vagrant winrm-config rundeckautomation) -match 'HostName\s+(?<ip_addr>\S+)')
+        {
+            $rundeckServer = "http://($Matches.ip_addr):4440"
+        }
+    }
+    New-RundeckSession -Uri $rundeckServer -Credential $rundeckCredential
 }
 finally
 {
