@@ -41,7 +41,7 @@ function New-RundeckSession
         $tokenUri = New-Object -TypeName 'Uri' -ArgumentList @($Uri,'j_security_check')
         $body = "j_username=$($Credential.UserName)&j_password=$($Credential.GetNetworkCredential().Password)"
 
-        Write-Debug  $body
+        Write-Debug "Invoke-WebRequest -SessionVariable restSession -Method Post -Uri $($tokenUri) -UseBasicParsing -Body $($body)"
 
         Invoke-WebRequest -SessionVariable restSession -Method Post -Uri $tokenUri -UseBasicParsing -Body $body
         $rundeckCookies = $restSession.Cookies.GetCookies($Uri)

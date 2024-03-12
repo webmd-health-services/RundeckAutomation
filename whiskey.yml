@@ -33,14 +33,6 @@ Build:
     DeleteSourceFiles: true
     TextSeparator: "$(NewLine)$(NewLine)"
 
-- CopyFile:
-    Path:
-    - LICENSE
-    - NOTICE
-    - README.md
-    - CHANGELOG.md
-    DestinationDirectory: RundeckAutomation
-
 - PowerShell:
     ExceptDuring: Clean
     Path: init.ps1
@@ -52,6 +44,9 @@ Build:
 # Build runs twice on some servers, so delete any ZIP file created by another build.
 - Delete:
     Path: .output\*.zip
+
+- Delete:
+    Path: .output\*.nupkg
 
 - CopyFile:
     Path:
@@ -73,7 +68,6 @@ Build:
     OnlyBy: BuildServer
     Path: appveyor
     Argument: [ 'PushArtifact', '.output/RundeckAutomation-$(WHISKEY_SEMVER2).zip', '-DeploymentName', 'GitHub' ]
-
 
 - PublishPowerShellModule:
     Path: RundeckAutomation

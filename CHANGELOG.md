@@ -1,4 +1,7 @@
-# 0.1.0
+# RundeckAutomation Powershell module Change Log
+
+## 0.1.0
+
 - Initial version with basic Rundeck cmdlets
 - Rename New-RundeckProject to Import-RundeckProject to better reflect how the cmdlet operates
 - Added remove cmdlets for jobs and projects

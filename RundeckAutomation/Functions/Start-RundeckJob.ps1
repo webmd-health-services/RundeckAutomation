@@ -29,7 +29,7 @@ function Start-RundeckJob
         [Switch] $Wait,
 
         # Optional duration to re-test when waiting for job completion.
-        [TimeSpan]$WaitInterval = [TimeSpan]'00:00:10'
+        [TimeSpan] $WaitInterval = [TimeSpan]'00:00:10'
     )
 
     process

@@ -54,14 +54,32 @@ try
 
     $rundeckPassword = ConvertTo-SecureString -AsPlainText -Force -String 'admin'
     [pscredential]$rundeckCredential = New-Object System.Management.Automation.PSCredential ('admin', $rundeckPassword)
-    $rundeckServer = 'http://localhost:4440'
+
     if ($ENV:VAGRANT_DEFAULT_PROVIDER -eq 'hyperv')
     {
-        if ((& vagrant winrm-config rundeckautomation) -match 'HostName\s+(?<ip_addr>\S+)')
+        if (Test-Path ./.hypervip)
         {
-            $rundeckServer = "http://($Matches.ip_addr):4440"
+            # Try to use the value stored by init.ps1
+            $storedValue = Get-Content ./.hypervip
+            $rundeckServer = "http://$($storedValue):4440"
+        }
+        else
+        {
+            $vagrantout = & vagrant winrm-config rundeckautomation
+            $vagrantout = $vagrantout -join  [System.Environment]::NewLine
+
+            if ($vagrantout -match '\sHostName\s+(?<ip_addr>\S+)')
+            {
+                $rundeckServer = "http://$($Matches.ip_addr):4440"
+                $Matches.ip_addr | Set-Content ./.hypervip
+            }
+            else
+            {
+                Write-Error $vagrantout
+            }
         }
     }
+    Write-Verbose "New-RundeckSession -Uri $($rundeckServer) -Credential $($rundeckCredential.UserName)"
     New-RundeckSession -Uri $rundeckServer -Credential $rundeckCredential
 }
 finally
