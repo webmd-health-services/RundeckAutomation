@@ -35,7 +35,7 @@ function Invoke-RundeckRestMethod
         [String] $QueryString,
 
         # Content is XML format rather than JSON.
-        [Switch] $ContentIsXML
+        [Switch] $BodyIsXML
     )
 
     Set-StrictMode -Version 'Latest'
