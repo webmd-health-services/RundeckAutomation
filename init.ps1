@@ -43,7 +43,7 @@ $ErrorActionPreference = 'Stop'
 $InformationPreference = 'Continue'
 $VerbosePreference = 'Continue'
 
-Write-Information -InformationAction Continue -MessageData 'Starting init.ps1 script'
+Write-Information -MessageData 'Starting init.ps1 script'
 
 $rundeckVersion = '4.17.5-20240304'
 # $rundeckVersion = '4.6.1-20220914'
@@ -66,7 +66,7 @@ if( (Test-Path -Path 'env:APPVEYOR') )
 
         New-Item -ItemType Directory -Path $rundeckPath
 
-        Write-Information -InformationAction Continue -MessageData 'Install OpenJDK'
+        Write-Information -MessageData 'Install OpenJDK'
         Invoke-WebRequest -UseBasicParsing -Uri "https://aka.ms/download-jdk/microsoft-jdk-$($openJdkVersion)-windows-x64.msi" -OutFile $msiPath -MaximumRedirection 10
         if (Test-Path $msiPath)
         {
@@ -83,8 +83,8 @@ if( (Test-Path -Path 'env:APPVEYOR') )
                 if ($javaPath.GetType().Name -ne 'String')
                 {
                     $javaVersion = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-version')
-                    Write-Information -InformationAction Continue -MessageData $javaVersion.stderr
-                    Write-Information -InformationAction Continue -MessageData 'Installed OpenJDK'
+                    Write-Information -MessageData $javaVersion.stderr
+                    Write-Information -MessageData 'Installed OpenJDK'
                 }
                 else
                 {
@@ -98,14 +98,14 @@ if( (Test-Path -Path 'env:APPVEYOR') )
             Write-Error "$($msiPath) missing."
         }
 
-        Write-Information -InformationAction Continue -MessageData 'Install Rundeck'
+        Write-Information -MessageData 'Install Rundeck'
         Invoke-WebRequest -UseBasicParsing -Uri $rundeckWarUri -OutFile $rundeckWarFile
         [System.Environment]::SetEnvironmentVariable('RDECK_BASE', $rundeckPath)
         $rundeckInstall = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-jar', $rundeckWarFile, '--installonly')
-        Write-Information -InformationAction Continue -MessageData $rundeckInstall.stdout
+        Write-Information -MessageData $rundeckInstall.stdout
         if ($rundeckInstall.stderr)
         {
-            Write-Information -InformationAction Continue -MessageData $rundeckInstall.stderr
+            Write-Information -MessageData $rundeckInstall.stderr
             Write-Error "Rundeck installation failed"
         }
         Copy-Item -Path (Join-Path -Path $($PSScriptRoot) -ChildPath 'vagrant\start_rundeck.bat') -Destination 'C:\rundeck\start_rundeck.bat'
@@ -122,27 +122,27 @@ if( (Test-Path -Path 'env:APPVEYOR') )
             netsh advfirewall firewall add rule name="Allow Rundeck" dir=in action=allow protocol=TCP localport=4440
         }
 
-        Write-Information -InformationAction Continue -MessageData 'Install Rundeck NSSM Windows service'
+        Write-Information -MessageData 'Install Rundeck NSSM Windows service'
         Invoke-WebRequest -UseBasicParsing -Uri "http://nssm.cc/release/nssm-$($nssmVersion).zip" -OutFile $zipPath
         Expand-Archive -Path $zipPath -DestinationPath $rundeckPath
         $nssmPath = Get-ChildItem -Recurse -Force -ErrorAction Ignore -Path $rundeckPath -Filter 'nssm.exe' | Where-Object { $_.FullName -match 'win64' } | Select-Object -ExpandProperty FullName
         if ($nssmPath.GetType().Name -eq 'String')
         {
             $nssmInstall = Start-InstallProcess -ExecutablePath $nssmPath -ExecutableParameters @('install', 'RUNDECK', 'C:\Rundeck\start_rundeck.bat')
-            Write-Information -InformationAction Continue -MessageData $nssmInstall.stdout
+            Write-Information -MessageData $nssmInstall.stdout
             if ($nssmInstall.stderr)
             {
-                Write-Information -InformationAction Continue -MessageData $nssmInstall.stderr
+                Write-Information -MessageData $nssmInstall.stderr
                 Write-Error 'NSSM failed to install.'
             }
             $nssmInstall = Start-InstallProcess -ExecutablePath $nssmPath -ExecutableParameters @('set', 'RUNDECK', 'AppDirectory', $rundeckPath)
-            Write-Information -InformationAction Continue -MessageData $nssmInstall.stdout
+            Write-Information -MessageData $nssmInstall.stdout
             if ($nssmInstall.stderr)
             {
-                Write-Information -InformationAction Continue -MessageData $nssmInstall.stderr
+                Write-Information -MessageData $nssmInstall.stderr
                 Write-Error 'NSSM failed to install.'
             }
-            Write-Information -InformationAction Continue -MessageData 'Installed NSSM and service'
+            Write-Information -MessageData 'Installed NSSM and service'
         }
         else
         {
@@ -153,7 +153,7 @@ if( (Test-Path -Path 'env:APPVEYOR') )
         $rundeckAccessList.SetAccessRule($rundeckAccessRule)
         $rundeckAccessList | Set-Acl -Path $rundeckPath
 
-        Write-Information -InformationAction Continue -MessageData 'Install done.  Starting Service.'
+        Write-Information -MessageData 'Install done.  Starting Service.'
         Start-Service -Name 'RUNDECK'
 
         Start-Sleep -Seconds 5
@@ -175,8 +175,8 @@ if( (Test-Path -Path 'env:APPVEYOR') )
         }
 
         $javaVersion = Start-InstallProcess -ExecutablePath $javaPath -ExecutableParameters @('-version')
-        Write-Information -InformationAction Continue -MessageData $javaVersion.stderr
-        Write-Information -InformationAction Continue -MessageData 'Installed OpenJDK'
+        Write-Information -MessageData $javaVersion.stderr
+        Write-Information -MessageData 'Installed OpenJDK'
 
         Start-InstallProcess -ExecutablePath 'sudo' -ExecutableParameters @('mkdir', $rundeckPath)
         sudo chown (whoami) $rundeckPath 
@@ -256,7 +256,7 @@ else
     $vagrantStatus = (& vagrant status) -join [System.Environment]::NewLine
     if (-not ($vagrantStatus -match 'rundeckautomation\s+running'))
     {
-        Write-Information -InformationAction Continue -MessageData "Running 'vagrant up'"
+        Write-Information -MessageData "Running 'vagrant up'"
         & vagrant up
         $vagrant_result = $LASTEXITCODE
         if ($vagrant_result -ne 0)
@@ -265,11 +265,11 @@ else
             & vagrant destroy -f
             exit -1
         }
-        Write-Information -InformationAction Continue -MessageData "  Done with 'vagrant up'"
+        Write-Information -MessageData "  Done with 'vagrant up'"
     }
     else
     {
-        Write-Information -InformationAction Continue -MessageData "rundeckautomation vm started.  Assuming provisioned."
+        Write-Information -MessageData "rundeckautomation vm started.  Assuming provisioned."
     }
     Pop-Location
 }
@@ -284,7 +284,7 @@ if ($ENV:VAGRANT_DEFAULT_PROVIDER -eq 'hyperv')
         $rundeckServer = $Matches.ip_addr
         $rundeckServer | Set-Content ./.hypervip
     }
-    Write-Information -InformationAction Continue -MessageData "Rundeck vagrant instance at IP $($rundeckServer)."
+    Write-Information -MessageData "Rundeck vagrant instance at IP $($rundeckServer)."
 }
 
 Start-Sleep -Seconds 5
@@ -295,7 +295,7 @@ try
 {
     while ((-not (Test-NetConnection -ComputerName $rundeckServer -Port 4440).TcpTestSucceeded) -and ($i -lt $maxTries))
     {
-        Write-Information -InformationAction Continue -MessageData 'Waiting 30 seconds for site to start...'
+        Write-Information -MessageData 'Waiting 30 seconds for site to start...'
         Start-Sleep -Seconds 30
         ++$i  
     }
@@ -304,17 +304,17 @@ try
     
     while (((Invoke-WebRequest -ErrorAction SilentlyContinue -UseBasicParsing -Uri "http://$($rundeckServer):4440").Content -notmatch 'Rundeck - Login' ) -and ($i -lt $maxTries))
     {
-        Write-Information -InformationAction Continue -MessageData 'Waiting 30 seconds for site to fully initialize...'
+        Write-Information -MessageData 'Waiting 30 seconds for site to fully initialize...'
         Start-Sleep -Seconds 30
         ++$i
     }   
 }
 catch
 {
-    Write-Information -InformationAction Continue -MessageData '------------------------------------------------------'
-    Write-Information -InformationAction Continue -MessageData ($PSVersionTable | Format-Table -Wrap | Out-String)
-    Write-Information -InformationAction Continue -MessageData '------------------------------------------------------'
+    Write-Information -MessageData '------------------------------------------------------'
+    Write-Information -MessageData ($PSVersionTable | Format-Table -Wrap | Out-String)
+    Write-Information -MessageData '------------------------------------------------------'
     Start-Sleep -Seconds 300
 }
 
-Write-Information -InformationAction Continue -MessageData 'Done with init.ps1 script'
+Write-Information -MessageData 'Done with init.ps1 script'
