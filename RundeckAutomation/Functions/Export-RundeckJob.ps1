@@ -29,7 +29,7 @@ function Export-RundeckJob
     process
     {
 
-        $jobExport = Invoke-RundeckRestMethod -ContentIsXML -ErrorAction 'Stop' -Method 'GET' -ResourcePath "project/$($ProjectName)/jobs/export" -QueryString "idlist=$($ID)"
+        $jobExport = Invoke-RundeckRestMethod -BodyIsXml -ErrorAction 'Stop' -Method 'GET' -ResourcePath "project/$($ProjectName)/jobs/export" -QueryString "idlist=$($ID)"
 
         Set-Content -Value $jobExport.InnerXml -Path $Path -Force -Encoding UTF8
 

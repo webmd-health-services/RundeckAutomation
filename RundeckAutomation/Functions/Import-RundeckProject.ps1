@@ -36,7 +36,7 @@ function Import-RundeckProject
         $method = 'POST'
         if ($File)
         {
-            Invoke-RundeckRestMethod -Method $method -ResourcePath $resourcePath -Body (Get-Content -Raw -Path $File) -ContentIsXML
+            Invoke-RundeckRestMethod -Method $method -ResourcePath $resourcePath -Body (Get-Content -Raw -Path $File) -BodyIsXml
         }
         else
         {

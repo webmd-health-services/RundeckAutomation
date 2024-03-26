@@ -38,7 +38,7 @@ function Import-RundeckJob
             $jobQuery = $null
         }
 
-        $jobImport = Invoke-RundeckRestMethod -QueryString $jobQuery -Body $jobDefinition -Method 'POST' -ResourcePath "project/$($ProjectName)/jobs/import" -ContentIsXML
+        $jobImport = Invoke-RundeckRestMethod -QueryString $jobQuery -Body $jobDefinition -Method 'POST' -ResourcePath "project/$($ProjectName)/jobs/import" -BodyIsXml
 
         return $jobImport
 

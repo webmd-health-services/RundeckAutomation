@@ -35,7 +35,7 @@ function Invoke-RundeckRestMethod
         [String] $QueryString,
 
         # Content is XML format rather than JSON.
-        [Switch] $BodyIsXML
+        [Switch] $BodyIsXml
     )
 
     Set-StrictMode -Version 'Latest'
@@ -56,7 +56,7 @@ function Invoke-RundeckRestMethod
     Write-Verbose "Relative $($relativeUri.GetType()) $($relativeUri)"
     $endpointUri = New-Object 'Uri' -ArgumentList @($_RundeckSession.Uri,$relativeUri)
 
-    if ($ContentIsXML)
+    if ($BodyIsXml)
     {
         $contentType = 'application/xml'
         $contentAccept = 'application/xml'
