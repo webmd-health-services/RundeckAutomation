@@ -12,12 +12,23 @@ Describe 'Export-RundeckProject' {
         function ThenReturnsAFile
         {
             param(
-                $Job
+                $File
             )
-    
-            Get-Item -Path $script:result -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Length | Should -BeGreaterOrEqual 1
+
+            Get-Item -Path $File -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Length | Should -BeGreaterOrEqual 1
         }
     
+        function ThenReturnsAZipFile
+        {
+            param(
+                $File
+            )
+
+            $rootPath = (Get-Item $PSScriptRoot).Parent
+            Import-Module -Name (Join-Path -Path $rootPath.FullName -ChildPath 'PSModules\Carbon' -Resolve)
+            Test-CZipFile -Path $File
+        }
+
         function WhenExportingAProject
         {
             param(
@@ -25,17 +36,20 @@ Describe 'Export-RundeckProject' {
             )
     
             $RundeckProjectFile = (New-TemporaryFile).FullName
-            Export-RundeckProject -Path $RundeckProjectFile -Name $Project
-            $script:result = $RundeckProjectFile
+            Export-RundeckProject -Path $RundeckProjectFile -Name $Project | Out-Null
+            return $RundeckProjectFile
         }
     }
 
     It 'should export a job to file' {
         $project1 = GivenAProject
 
-        WhenExportingAProject $project1
+        $outputFile = WhenExportingAProject $project1
 
-        ThenReturnsAFile $project1
+        ThenReturnsAFile -File $outputFile
+
+        ThenReturnsAZipFile -File $outputFile
+
     }
 
 }
