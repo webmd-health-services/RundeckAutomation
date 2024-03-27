@@ -2,33 +2,33 @@
 #Requires -Version 5.1
 Set-StrictMode -Version 'Latest'
 
-Describe 'Get-RundeckSystemInfo' {
+BeforeAll {
+    & (Join-Path -Path $PSScriptRoot -ChildPath 'Initialize-Test.ps1' -Resolve)
 
-    BeforeAll {
-        & (Join-Path -Path $PSScriptRoot -ChildPath 'Initialize-Test.ps1' -Resolve)
-    
-        [Object[]] $script:result = $null
-    
-        $script:project = GivenAProject
-    
-        function ThenReturnsInfo
-        {
-            param(
-                $Job
-            )
-    
-            $script:result | Should -Not -BeNullOrEmpty
-        }
-    
-        function WhenGettingInfo
-        {
-            param(
-            )
-    
-            $script:result = Get-RundeckSystemInfo
-    
-        }
+    [Object[]] $script:result = $null
+
+    $script:project = GivenAProject
+
+    function ThenReturnsInfo
+    {
+        param(
+            $Job
+        )
+
+        $script:result | Should -Not -BeNullOrEmpty
     }
+
+    function WhenGettingInfo
+    {
+        param(
+        )
+
+        $script:result = Get-RundeckSystemInfo
+
+    }
+}
+
+Describe 'Get-RundeckSystemInfo' {
     
     It 'should get the system info' {
 
