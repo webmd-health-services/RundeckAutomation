@@ -35,7 +35,16 @@ function Invoke-RundeckRestMethod
         [String] $QueryString,
 
         # Content is XML format rather than JSON.
-        [Switch] $BodyIsXml
+        [Switch] $BodyIsXml,
+
+        [Parameter(ParameterSetName = 'AsBinary')]
+        # The call is expected to return a binary file (i.e. a compressed archive)
+        [Switch] $BodyIsStream,
+
+        [Parameter(ParameterSetName = 'AsBinary')]
+        # Save binary output to file rather than returning the stream
+        [String] $OutputPath
+
     )
 
     Set-StrictMode -Version 'Latest'
@@ -43,7 +52,7 @@ function Invoke-RundeckRestMethod
 
     if (-not ($_RundeckSession))
     {
-        Write-Error 'No Rundeck Session defined.  Use New-RUndeckSession to log in to Rundeck.'
+        Write-Error 'No Rundeck Session defined.  Use New-RundeckSession to log in to Rundeck.'
         exit
     }
 
@@ -60,6 +69,11 @@ function Invoke-RundeckRestMethod
     {
         $contentType = 'application/xml'
         $contentAccept = 'application/xml'
+    }
+    elseif ($BodyIsStream)
+    {
+        $contentType = 'application/octet-stream'
+        $contentAccept = 'application/octet-stream'
     }
     else
     {
@@ -88,12 +102,25 @@ function Invoke-RundeckRestMethod
             Write-Debug ($sessionHeaders | Out-String)
             Write-Debug ($bodyParam | Out-String)
 
-            Invoke-RestMethod -WebSession $_RundeckSession.WebSession -Method $Method -Uri $endpointUri -Headers $sessionHeaders -ContentType $contentType @bodyParam |
+            $result = Invoke-RestMethod -ErrorAction Stop -WebSession $_RundeckSession.WebSession -Method $Method -Uri $endpointUri -Headers $sessionHeaders -ContentType $contentType @bodyParam |
                 Where-Object { $_ }
         }
     }
-    catch [Net.WebException]
+    catch
     {
         Write-Error -ErrorRecord $_ -ErrorAction $ErrorActionPreference
+        return
     }
+
+    if ($OutputPath)
+    {
+        $fileOut = New-Object IO.FileStream($OutputPath, [IO.FileMode]::Create)
+        $streamOut = New-Object IO.StreamWriter($fileOut)
+        $streamOut.WriteLine($result) | Out-Null
+        $streamOut.Close() | Out-Null
+        $fileOut.Close() | Out-Null
+        return (Get-Item -Path $OutputPath)
+    }
+
+    return $result
 }

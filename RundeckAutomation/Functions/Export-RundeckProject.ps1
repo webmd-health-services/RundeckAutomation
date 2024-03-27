@@ -24,7 +24,13 @@ function Export-RundeckProject
 
     process
     {
-        $projectExport = Invoke-RundeckRestMethod -BodyIsXML -ErrorAction 'Stop' -Method 'GET' -ResourcePath "project/$($Name)/export" -QueryString "exportConfigs=true&exportAll=false"
-        Set-Content -Value $projectExport.InnerXml -Path $Path -Force -Encoding UTF8
+        # $relativeUri = "project/$($Name)/export"
+        # $relativeUri = '{0}?{1}' -f $relativeUri, "exportConfigs=true&exportAll=false"
+        # Write-Host $relativeUri
+        # $endpointUri = New-Object 'Uri' -ArgumentList @($_RundeckSession.Uri, $relativeUri)
+        # $rawRequest = Invoke-WebRequest -ErrorAction 'Stop' -WebSession $_RundeckSession.WebSession -Method 'GET' -Uri $endpointUri # -OutFile $Path
+        # Write-Host ($rawRequest | ConvertTo-Json | Out-String)
+
+        Invoke-RundeckRestMethod -BodyIsStream -OutputPath $Path -ErrorAction 'Stop' -Method 'GET' -ResourcePath "project/$($Name)/export" -QueryString "exportConfigs=true&exportAll=false"
     }
 }
