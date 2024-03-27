@@ -47,9 +47,6 @@ function Start-RundeckJob
             $jobRun = Invoke-RundeckRestMethod -Method 'POST' -ResourcePath "job/$($ID)/executions"
         }
 
-        
-        Start-Sleep -Seconds 1
-
         if ($Wait)
         {
             while ($jobRun.status -eq 'running')
