@@ -44,8 +44,8 @@ function Get-RundeckJob
         }
         else
         {
-            $queryFilter = [ScriptBlock]::Create($Filter)
-            return ($allJobs | Where-Object { $_.name -like $queryFilter })
+            Write-Verbose "Using filter '$($Filter)'"
+            return ($allJobs | Where-Object 'name' -Like $Filter)
         }
     }
 }
