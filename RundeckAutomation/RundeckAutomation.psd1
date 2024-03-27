@@ -128,7 +128,7 @@
             # A URL to an icon representing this module.
             # IconUri = ''
 
-            Prerelease = ''
+            Prerelease = 'rc1'
 
             # ReleaseNotes of this module
             ReleaseNotes = 'https://github.com/webmd-health-services/RundeckAutomation/blob/main/CHANGELOG.md'

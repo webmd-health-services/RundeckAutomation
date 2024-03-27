@@ -31,6 +31,6 @@ else
     Push-Location $PSScriptRoot
     & vagrant destroy -f
     Remove-Item -ErrorAction SilentlyContinue -Force -Path './.hypervip'
-    Remove-Item -ErrorAction SilentlyContinue -Force -Path './.vagrant'
+    Remove-Item -ErrorAction SilentlyContinue -Recurse -Force -Path './.vagrant'
     Pop-Location
 }

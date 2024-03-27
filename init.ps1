@@ -46,7 +46,6 @@ $VerbosePreference = 'Continue'
 Write-Information -MessageData 'Starting init.ps1 script'
 
 $rundeckVersion = '4.17.5-20240304'
-# $rundeckVersion = '4.6.1-20220914'
 $openJdkVersion = '11.0.22'
 $rundeckWarUri = "https://packagecloud.io/pagerduty/rundeck/packages/java/org.rundeck/rundeck-$($rundeckVersion).war/artifacts/rundeck-$($rundeckVersion).war/download"
 

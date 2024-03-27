@@ -2,13 +2,12 @@
 # vi: set ft=ruby :
 
 $provisionScript = <<-SCRIPT
-env
-set
-sudo echo deb http://deb.debian.org/debian unstable main non-free contrib >> /etc/apt/sources.list
-sudo mv /home/vagrant/preferences /etc/apt/preferences
-sudo apt-get update
-# sudo apt-get upgrade -y > /dev/null
-sudo apt-get install openjdk-11-jre -y > /dev/null
+export DEBIAN_FRONTEND=noninteractive
+sudo apt-get install wget apt-transport-https gpg -y -q
+wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
+echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list  > /dev/null
+sudo apt-get update -q
+sudo apt-get install temurin-11-jre -y -q
 java --version
 retVal=$?
 if [ $retVal -ne 0 ]; then
