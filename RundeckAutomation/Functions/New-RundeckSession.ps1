@@ -55,6 +55,6 @@ function New-RundeckSession
         $restSession.Headers= $headers
     }
     
-    New-Variable -Force -Name '_RundeckSession' -Scope Script -Value ([pscustomobject]@{ WebSession = $restSession; Uri = $apiUri })
-
+    # New-Variable -Force -Name '_RundeckSession' -Scope Script -Value ([pscustomobject]@{ WebSession = $restSession; Uri = $apiUri })
+    return ([pscustomobject]@{ WebSession = $restSession; Uri = $apiUri })
 }

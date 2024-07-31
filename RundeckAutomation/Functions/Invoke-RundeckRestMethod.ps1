@@ -43,8 +43,10 @@ function Invoke-RundeckRestMethod
 
         [Parameter(ParameterSetName = 'AsBinary')]
         # Save binary output to file rather than returning the stream
-        [String] $OutputPath
+        [String] $OutputPath,
 
+        [Parameter(Mandatory)]
+        [Object] $Session
     )
 
     Set-StrictMode -Version 'Latest'
