@@ -1,20 +1,26 @@
 
-PublishOn:
-- main
-- prerelease
-
 Build:
+- PowerShell:
+    ExceptDuring: Clean
+    ScriptBlock: |
+        if( -not (Get-Module -Name 'Prism' -ListAvailable) )
+        {
+            Find-Module -Name 'Prism' | Select-Object -First 1 | Install-Module -Force
+        }
+        prism install | Format-Table -Auto
+
 - Version:
     Path: RundeckAutomation\RundeckAutomation.psd1
     Prerelease:
-    - "*/*": alpha$(WHISKEY_BUILD_NUMBER)
-    - develop: rc$(WHISKEY_BUILD_NUMBER)
+    - main: ""
+    - "*": rc1
+    IncrementPrereleaseVersion: true
 
 # Update the AppVeyor build/version number.
 - Exec:
       OnlyBy: BuildServer
       Path: appveyor
-      Argument: [ UpdateBuild, -Version, $(WHISKEY_SEMVER2) ]
+      Argument: [ UpdateBuild, -Version, "$(WHISKEY_SEMVER2)+$(WHISKEY_BUILD_NUMBER)" ]
 
 # Dot-sourcing files is expensive. Move all functions into .psm1 file to improve import speed. Do this before testing
 # to ensure the module still works.
@@ -40,6 +46,9 @@ Build:
 - Delete:
     Path: .output\*.zip
 
+- Delete:
+    Path: .output\*.nupkg
+
 - CopyFile:
     Path:
     - CHANGELOG.md
@@ -50,7 +59,7 @@ Build:
 
 - Zip:
     ArchivePath: .output\RundeckAutomation-$(WHISKEY_SEMVER2).zip
-    Path: 
+    Path:
     - RundeckAutomation
     Exclude:
     - "*.pdb"
@@ -60,7 +69,6 @@ Build:
     OnlyBy: BuildServer
     Path: appveyor
     Argument: [ 'PushArtifact', '.output/RundeckAutomation-$(WHISKEY_SEMVER2).zip', '-DeploymentName', 'GitHub' ]
-
 
 - PublishPowerShellModule:
     Path: RundeckAutomation
@@ -76,8 +84,8 @@ Build:
     ]
 
 - Pester:
-    Configuration: 
-        Run: 
+    Configuration:
+        Run:
             Path: Tests\*.Tests.ps1
             Exit: true
             Throw: true
